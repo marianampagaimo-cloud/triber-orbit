@@ -585,6 +585,13 @@ async function claude(prompt,maxTok=1200,useSearch=false){
 
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
+function updateSidebar(){
+  const dot=document.getElementById('sf-dot');
+  const txt=document.getElementById('sf-text');
+  if(dot) dot.className='sf-dot'+(state.running?' on':'');
+  if(txt) txt.textContent=state.running?'A monitorizar':'Inativo';
+}
+
 // ════════════════════════════════════════
 // NAVIGATION
 // ════════════════════════════════════════
@@ -1040,7 +1047,7 @@ function renderFeed(){
   if(f==='go') items=items.filter(o=>o.score>=70);
   else if(f==='wait') items=items.filter(o=>o.score>=40&&o.score<70);
   else if(f==='no') items=items.filter(o=>o.score<40);
-  else if(['adamus','arieiro','candycat'].includes(f)) items=items.filter(o=>o.brandKey===f);
+  else if(BRANDS[f]) items=items.filter(o=>o.brandKey===f);
 
   const el=document.getElementById('feed-list');
   if(!items.length){el.innerHTML='<div class="empty"><span class="empty-icon">▦</span>Sem oportunidades para este filtro.</div>';return;}
