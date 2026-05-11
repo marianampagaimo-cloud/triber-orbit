@@ -804,24 +804,15 @@ async function generateNews(){
     if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias PT','ok');}
   }catch(e){log('  ↳ Erro web search: '+e.message.substring(0,60),'err');}
 
-  await sleep(8000);
+  await sleep(10000);
 
-  // Search 2: IA generates events/calendar without web search (cheap)
+  // Search 2: generate events and trends without web search
   try{
-    log('  ↳ A gerar efemérides e eventos da semana…');
-    const r2=await claude(`Hoje é ${dayOfWeek}, ${today}. Lista eventos culturais, efemérides, datas comemorativas, festivais, estreias e acontecimentos desta semana em Portugal e internacionalmente. Sê criativo e abrangente. APENAS JSON: {"news":[{"title":"<evento>","summary":"<1 frase>","source":"<tipo de fonte>","category":"<categoria>","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,700,false);
-    if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' eventos/efemérides','ok');}
-  }catch(e){log('  ↳ Erro efemérides: '+e.message.substring(0,60),'err');}
-
-  await sleep(8000);
-
-  // Search 3: IA generates trending cultural topics (cheap, no web search)
-  try{
-    log('  ↳ A identificar tendências culturais relevantes…');
-    const brandCtx=Object.values(BRANDS).map(b=>b.name+' ('+b.sector+')').join(', ');
-    const r3=await claude(`Que tendências culturais, movimentos, conversas e temas estão em alta agora (${today}) que possam ser relevantes para estas marcas: ${brandCtx}? Pensa em gastronomia, lifestyle, bem-estar, música, arte, sustentabilidade, momentos de partilha. APENAS JSON: {"news":[{"title":"<tendência>","summary":"<1 frase>","source":"Tendência cultural","category":"tendência","tone":"positivo","urgency":"media"}]}`,600,false);
-    if(r3.news){allNews.push(...r3.news);log('  ↳ '+r3.news.length+' tendências','ok');}
-  }catch(e){log('  ↳ Erro tendências: '+e.message.substring(0,60),'err');}
+    log('  ↳ A gerar efemérides e tendências…');
+    const brandCtx=Object.values(BRANDS).map(b=>b.name).join(', ');
+    const r2=await claude(`Hoje é ${dayOfWeek}, ${today}. Gera 8 eventos, efemérides, tendências culturais e acontecimentos desta semana relevantes para marcas como ${brandCtx}. Foca em cultura, gastronomia, lifestyle, música, arte, momentos de celebração — nada negativo. APENAS JSON: {"news":[{"title":"<título>","summary":"<1 frase>","source":"<fonte>","category":"<categoria>","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,700,false);
+    if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' eventos/tendências','ok');}
+  }catch(e){log('  ↳ Erro eventos: '+e.message.substring(0,60),'err');}
 
   // Deduplicate
   const seen=new Set();
