@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRIBER ORBIT — Real-Time Marketing Intelligence · Triber Agency</title>
+<style>
+:root {
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#222;--bg5:#2a2a2a;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --text:#ece8e0;--text2:#888;--text3:#484848;
+  --green:#4ade80;--gbg:rgba(74,222,128,.1);--gborder:rgba(74,222,128,.2);
+  --amber:#fbbf24;--abg:rgba(251,191,36,.1);--aborder:rgba(251,191,36,.2);
+  --red:#f87171;--rbg:rgba(248,113,113,.1);--rborder:rgba(248,113,113,.2);
+  --blue:#60a5fa;--bbg:rgba(96,165,250,.1);
+  --r:10px;--rsm:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:4px;}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:230px;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:20;}
+.main{margin-left:230px;flex:1;padding:32px 36px;max-width:900px;}
+
+/* SIDEBAR */
+.logo-area{padding:22px 18px 18px;border-bottom:1px solid var(--border);}
+.logo{display:flex;align-items:center;gap:9px;margin-bottom:3px;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pdot 2.5s ease-in-out infinite;}
+@keyframes pdot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.5)}50%{opacity:.6;box-shadow:0 0 0 5px rgba(74,222,128,0)}}
+.logo-text{font-size:14px;font-weight:700;letter-spacing:.2em;color:var(--text);}
+.logo-tag{font-size:11px;color:var(--text3);letter-spacing:.03em;}
+
+.nav-section{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:16px 16px 5px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 14px;border-radius:var(--rsm);color:var(--text2);cursor:pointer;font-size:13px;transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:inherit;margin:1px 6px;width:calc(100% - 12px);}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--bg4);color:var(--text);}
+.nav-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--gbg);color:var(--green);font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;}
+.nav-badge.amber{background:var(--abg);color:var(--amber);}
+
+.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--border);}
+.sf-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin-bottom:4px;}
+.sf-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
+.sf-dot.on{background:var(--green);animation:pdot 2s infinite;}
+.sf-timer{font-size:11px;color:var(--text3);}
+
+/* PANELS */
+.panel{display:none;}.panel.active{display:block;}
+.page-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:24px;}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px;}
+.card-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+
+/* MONITOR HEADER */
+.monitor-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding:14px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);}
+.monitor-left{display:flex;align-items:center;gap:12px;}
+.monitor-status{font-size:13px;font-weight:500;}
+.monitor-cycle{font-size:12px;color:var(--text2);}
+.monitor-progress{flex:1;height:3px;background:var(--bg4);border-radius:2px;margin:0 16px;overflow:hidden;}
+.monitor-fill{height:100%;background:var(--green);border-radius:2px;transition:width .5s linear;}
+.btn-run{padding:8px 18px;font-size:13px;font-weight:600;font-family:inherit;background:var(--green);color:#000;border:none;border-radius:var(--rsm);cursor:pointer;transition:opacity .15s;white-space:nowrap;}
+.btn-run:hover{opacity:.88;}
+.btn-run:disabled{opacity:.4;cursor:not-allowed;}
+.btn-stop{padding:8px 16px;font-size:13px;font-family:inherit;background:none;color:var(--red);border:1px solid var(--rborder);border-radius:var(--rsm);cursor:pointer;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;}
+.stat-lbl{font-size:11px;color:var(--text3);margin-bottom:3px;}
+.stat-val{font-size:22px;font-weight:700;}
+.stat-val.green{color:var(--green);}
+.stat-val.amber{color:var(--amber);}
+.stat-val.red{color:var(--red);}
+
+/* OPPORTUNITY CARDS */
+.opp-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;transition:border-color .15s;}
+.opp-card:hover{border-color:var(--border2);}
+.opp-card.priority{border-left:3px solid var(--green);}
+.opp-card.consider{border-left:3px solid var(--amber);}
+.opp-card.discarded{border-left:3px solid var(--text3);opacity:.5;}
+
+.opp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.opp-meta{font-size:11px;color:var(--text3);margin-bottom:3px;}
+.opp-event{font-size:15px;font-weight:600;line-height:1.3;margin-bottom:3px;}
+.opp-source{font-size:11px;color:var(--text3);}
+
+.score-badge{font-size:14px;font-weight:700;padding:4px 12px;border-radius:7px;white-space:nowrap;margin-left:12px;flex-shrink:0;}
+.sb-high{background:var(--gbg);color:var(--green);}
+.sb-mid{background:var(--abg);color:var(--amber);}
+.sb-low{background:var(--rbg);color:var(--red);}
+
+.verdict-row{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:var(--rsm);font-size:12px;font-weight:600;margin-bottom:12px;}
+.v-go{background:var(--gbg);color:var(--green);border:1px solid var(--gborder);}
+.v-wait{background:var(--abg);color:var(--amber);border:1px solid var(--aborder);}
+.v-no{background:var(--rbg);color:var(--red);border:1px solid var(--rborder);}
+
+.score-bars{display:flex;flex-direction:column;gap:6px;margin:10px 0;}
+.sbar-row{display:grid;grid-template-columns:140px 1fr 32px;align-items:center;gap:8px;font-size:11px;}
+.sbar-lbl{color:var(--text2);}
+.sbar-track{height:4px;background:var(--bg5);border-radius:2px;overflow:hidden;}
+.sbar-fill{height:100%;border-radius:2px;}
+.sbar-num{color:var(--text3);text-align:right;font-size:10px;}
+
+.concept-section{border-top:1px solid var(--border);padding-top:12px;margin-top:12px;}
+.concept-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px;}
+.concept-text{font-size:13px;color:var(--text);line-height:1.6;}
+.copy-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 14px;font-size:13px;color:var(--text2);font-style:italic;line-height:1.6;margin-top:6px;}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.chip{font-size:11px;padding:2px 9px;border-radius:12px;border:1px solid var(--border);color:var(--text3);}
+
+/* FEED FILTERS */
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.filter-btn{padding:5px 13px;font-size:12px;font-family:inherit;background:none;border:1px solid var(--border);border-radius:14px;color:var(--text2);cursor:pointer;transition:all .15s;}
+.filter-btn.active{background:var(--text);color:var(--bg);border-color:var(--text);}
+.filter-btn:hover:not(.active){border-color:var(--border2);color:var(--text);}
+
+/* EMAIL PANEL */
+.email-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.email-head{padding:14px 18px;background:var(--bg3);border-bottom:1px solid var(--border);}
+.email-subject{font-size:14px;font-weight:600;margin-bottom:3px;}
+.email-from{font-size:11px;color:var(--text3);}
+.email-body{padding:18px;}
+.email-sec-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;}
+.email-opp{border-left:2px solid var(--green);padding:12px 14px;background:var(--bg3);border-radius:0 var(--rsm) var(--rsm) 0;margin-bottom:10px;}
+.email-opp.mid{border-left-color:var(--amber);}
+.email-opp.disc{border-left-color:var(--text3);opacity:.5;}
+.eo-brand{font-size:10px;color:var(--text3);margin-bottom:2px;}
+.eo-event{font-size:14px;font-weight:600;margin-bottom:4px;}
+.eo-score{font-size:11px;color:var(--text3);margin-bottom:8px;}
+.eo-concept{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:5px;}
+.eo-copy{font-size:12px;color:var(--text2);font-style:italic;line-height:1.5;}
+.eo-why{font-size:11px;color:var(--text3);line-height:1.5;margin-top:8px;border-top:1px solid rgba(255,255,255,.05);padding-top:8px;}
+hr.ediv{border:none;border-top:1px solid var(--border);margin:14px 0;}
+
+/* BRANDS */
+.brand-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px;}
+.bc-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.bc-avatar{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+.bc-name{font-size:15px;font-weight:600;}
+.bc-sector{font-size:11px;color:var(--text3);margin-top:1px;}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.tag{font-size:11px;padding:2px 9px;border-radius:12px;background:var(--bg3);color:var(--text3);border:1px solid var(--border);}
+.bc-text{font-size:12px;color:var(--text3);line-height:1.7;}
+
+/* ANALYTICS */
+.perf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.perf-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;}
+.perf-name{font-size:13px;font-weight:600;margin-bottom:8px;}
+.perf-avg{font-size:24px;font-weight:700;}
+.perf-meta{font-size:11px;color:var(--text3);margin-top:3px;}
+
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
+.bc-row{display:grid;grid-template-columns:52px 1fr 30px;align-items:center;gap:10px;font-size:12px;color:var(--text2);}
+.bc-track{height:18px;background:var(--bg4);border-radius:4px;overflow:hidden;}
+.bc-fill{height:100%;border-radius:4px;}
+.bc-val{text-align:right;color:var(--text3);}
+
+/* SETTINGS */
+.setting-row{margin-bottom:16px;}
+.setting-row label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;}
+.setting-row input,.setting-row select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s;}
+.setting-row input:focus,.setting-row select:focus{border-color:var(--border2);}
+.input-row{display:grid;grid-template-columns:1fr auto;gap:8px;}
+
+/* BUTTONS */
+.btn-primary{width:100%;padding:11px;font-size:14px;font-weight:600;font-family:inherit;background:var(--text);color:var(--bg);border:none;border-radius:var(--rsm);cursor:pointer;transition:opacity .15s;}
+.btn-primary:hover{opacity:.88;} .btn-primary:disabled{opacity:.35;cursor:not-allowed;}
+.btn-sec{padding:8px 14px;font-size:13px;font-family:inherit;background:none;color:var(--text2);border:1px solid var(--border);border-radius:var(--rsm);cursor:pointer;transition:all .15s;}
+.btn-sec:hover{color:var(--text);border-color:var(--border2);}
+
+/* LOADING / EMPTY */
+.loading{text-align:center;padding:48px 20px;color:var(--text2);font-size:13px;}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid var(--bg4);border-top-color:var(--text2);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:10px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:56px 20px;color:var(--text3);}
+.empty-icon{font-size:28px;display:block;margin-bottom:12px;}
+
+/* LOG */
+.log-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;color:var(--text2);max-height:160px;overflow-y:auto;margin-top:16px;}
+.log-line{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.log-line.ok{color:var(--green);}
+.log-line.err{color:var(--red);}
+.log-line.info{color:var(--blue);}
+
+/* TOGGLE */
+.toggle-wrap{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--bg5);border-radius:10px;transition:background .2s;}
+.toggle input:checked + .toggle-track{background:var(--green);}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(16px);}
+
+/* CYCLE INDICATOR */
+.cycle-ring{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:2px solid var(--bg4);position:relative;flex-shrink:0;}
+.cycle-num{font-size:12px;font-weight:700;color:var(--text);}
+svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
+
+/* NEWS TICKER */
+.ticker-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;overflow:hidden;}
+.ticker-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;}
+.ticker-items{display:flex;flex-direction:column;gap:6px;max-height:120px;overflow-y:auto;}
+.ticker-item{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--text2);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.ticker-item:last-child{border-bottom:none;}
+.ticker-src{font-size:10px;color:var(--text3);white-space:nowrap;margin-top:1px;min-width:60px;}
+.ticker-time{font-size:10px;color:var(--text3);white-space:nowrap;margin-left:auto;margin-top:1px;}
+
+/* EXPORT / ACTION BUTTONS */
+.action-bar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+.btn-export{padding:8px 16px;font-size:12px;font-weight:600;font-family:inherit;background:none;color:var(--amber);border:1px solid var(--aborder);border-radius:var(--rsm);cursor:pointer;transition:all .15s;}
+.btn-export:hover{background:var(--abg);}
+.btn-danger-sm{padding:8px 14px;font-size:12px;font-family:inherit;background:none;color:var(--text3);border:1px solid var(--border);border-radius:var(--rsm);cursor:pointer;margin-left:auto;}
+.btn-danger-sm:hover{color:var(--red);border-color:var(--rborder);}
+
+/* IMPROVED CARDS */
+.opp-card{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:12px;transition:all .2s;}
+.opp-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.opp-card.priority{border-left-color:var(--green);box-shadow:0 2px 16px rgba(74,222,128,.07);}
+.opp-card.consider{border-left-color:var(--amber);box-shadow:0 2px 16px rgba(251,191,36,.07);}
+
+/* COPY IMAGE DISPLAY */
+.copy-image-display{background:linear-gradient(135deg,var(--bg4) 0%,var(--bg5) 100%);border:1px solid rgba(251,191,36,.25);border-radius:var(--rsm);padding:20px;margin-top:6px;text-align:center;font-size:22px;font-weight:900;letter-spacing:.06em;color:var(--text);min-height:72px;display:flex;align-items:center;justify-content:center;}
+
+/* VISUAL BRIEF */
+.visual-brief{background:var(--bg3);border-left:3px solid rgba(192,132,252,.4);padding:12px 16px;border-radius:0 var(--rsm) var(--rsm) 0;font-size:13px;color:var(--text2);line-height:1.7;margin-top:6px;font-style:italic;}
+
+/* CAPTION BOX */
+.caption-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:14px 16px;font-size:13px;color:var(--text);line-height:1.8;margin-top:6px;}
+
+/* BRIEFING NOTES */
+.briefing-notes{background:rgba(96,165,250,.06);border:1px solid var(--bborder);border-radius:var(--rsm);padding:10px 14px;font-size:12px;color:var(--blue);line-height:1.6;margin-top:6px;}
+
+/* SCORE DISPLAY */
+.score-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.score-number{font-size:32px;font-weight:900;line-height:1;padding:6px 16px;border-radius:10px;white-space:nowrap;margin-left:12px;}
+.sn-high{background:var(--gbg);color:var(--green);}
+.sn-mid{background:var(--abg);color:var(--amber);}
+.sn-low{background:var(--rbg);color:var(--red);}
+
+/* HISTORY BADGE */
+.history-badge{font-size:11px;color:var(--text3);padding:3px 10px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo"><div class="logo-dot"></div><span class="logo-text">TRIBER ORBIT</span></div>
+    <div class="logo-tag">always listening. always ready.</div>
+  </div>
+  <nav>
+    <div class="nav-section">Monitorização</div>
+    <button class="nav-item active" onclick="nav('monitor',this)"><span class="nav-icon">◎</span>Monitor em tempo real<span class="nav-badge" id="nb-new" style="display:none">0</span></button>
+    <button class="nav-item" onclick="nav('feed',this)"><span class="nav-icon">▦</span>Feed de oportunidades<span class="nav-badge amber" id="nb-feed" style="display:none">0</span></button>
+    <button class="nav-item" onclick="nav('email',this)"><span class="nav-icon">✉</span>Emails Triber Orbit</button>
+
+    <div class="nav-section">Análise Manual</div>
+    <button class="nav-item" onclick="nav('simulator',this)"><span class="nav-icon">⚡</span>Simulador RTM</button>
+
+    <div class="nav-section">Gestão</div>
+    <button class="nav-item" onclick="nav('brands',this)"><span class="nav-icon">◐</span>Perfis de marca</button>
+    <button class="nav-item" onclick="nav('analytics',this)"><span class="nav-icon">◈</span>Analytics</button>
+    <button class="nav-item" onclick="nav('settings',this)"><span class="nav-icon">⚙</span>Definições</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-status"><div class="sf-dot" id="sf-dot"></div><span id="sf-text">Inativo</span></div>
+    <div class="sf-timer" id="sf-timer">Último ciclo: —</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px">Triber Agency · v1.0</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══ MONITOR ═══ -->
+<div class="panel active" id="panel-monitor">
+  <div class="page-title">Monitor em tempo real</div>
+  <div class="page-sub">A plataforma monitoriza notícias e eventos e analisa automaticamente oportunidades de RTM para cada marca.</div>
+
+  <div class="monitor-bar">
+    <div class="monitor-left">
+      <div class="cycle-ring">
+        <svg class="ring-svg" width="44" height="44" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="2"/>
+          <circle id="ring-circle" cx="22" cy="22" r="18" fill="none" stroke="#4ade80" stroke-width="2" stroke-dasharray="113" stroke-dashoffset="113" stroke-linecap="round"/>
+        </svg>
+        <span class="cycle-num" id="cycle-num">—</span>
+      </div>
+      <div>
+        <div class="monitor-status" id="monitor-status">Parado</div>
+        <div class="monitor-cycle" id="monitor-cycle">Clica em "Iniciar ciclo" para começar</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-stop" id="btn-stop" onclick="stopMonitor()" style="display:none">Parar</button>
+      <button class="btn-run" id="btn-now" onclick="runNow()" style="display:none;background:var(--amber);color:#000;margin-right:6px">⚡ Agora</button>
+      <button class="btn-run" id="btn-start" onclick="startCycle()">▶ Iniciar ciclo</button>
+    </div>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="ticker-lbl">Notícias em análise</div>
+    <div class="ticker-items" id="ticker-items">
+      <div style="font-size:12px;color:var(--text3);padding:4px 0">Aguarda o início do ciclo…</div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-lbl">Ciclos corridos</div><div class="stat-val" id="s-cycles">0</div></div>
+    <div class="stat"><div class="stat-lbl">Notícias analisadas</div><div class="stat-val" id="s-news">0</div></div>
+    <div class="stat"><div class="stat-lbl">Oportunidades</div><div class="stat-val green" id="s-opps">0</div></div>
+    <div class="stat"><div class="stat-lbl">Emails enviados</div><div class="stat-val" id="s-emails">0</div></div>
+  </div>
+
+  <div class="card-title" style="margin-bottom:12px">Últimas oportunidades detectadas</div>
+  <div id="monitor-results">
+    <div class="empty"><span class="empty-icon">◎</span>Inicia o ciclo para ver resultados.</div>
+  </div>
+
+  <div class="log-wrap" id="log"></div>
+</div>
+
+<!-- ═══ FEED ═══ -->
+<div class="panel" id="panel-feed">
+  <div class="page-title">Feed de oportunidades</div>
+  <div class="page-sub">Todas as oportunidades detectadas automaticamente, filtráveis por marca e decisão.</div>
+
+
+  <div class="action-bar">
+    <button class="btn-export" onclick="exportFeedCSV()">⬇ Exportar CSV</button>
+    <button class="btn-export" onclick="copyFeedSummary()">📋 Copiar resumo</button>
+    <button class="btn-danger-sm" onclick="clearHistory()">Limpar histórico</button>
+  </div>
+  <div class="filter-row" id="feed-filter-row">
+    <button class="filter-btn active" onclick="filterFeed('all',this)">Todas</button>
+    <button class="filter-btn" onclick="filterFeed('go',this)">✓ Avançar</button>
+    <button class="filter-btn" onclick="filterFeed('wait',this)">⏸ Considerar</button>
+    <button class="filter-btn" onclick="filterFeed('no',this)">✕ Descartadas</button>
+    <div id="feed-brand-filters" style="display:flex;gap:7px;flex-wrap:wrap"></div>
+  </div>
+
+  <div id="feed-list">
+    <div class="empty"><span class="empty-icon">▦</span>Ainda sem oportunidades.<br>Inicia o Monitor para começar.</div>
+  </div>
+</div>
+
+<!-- ═══ EMAIL ═══ -->
+<div class="panel" id="panel-email">
+  <div class="page-title">Emails Triber Orbit</div>
+  <div class="page-sub">Emails gerados automaticamente a cada ciclo, prontos a enviar à equipa.</div>
+  <div class="action-bar">
+    <button class="btn-export" onclick="exportAllEmails()">📋 Copiar todos</button>
+    <button class="btn-danger-sm" onclick="clearEmails()">Limpar emails</button>
+  </div>
+  <div id="email-list">
+    <div class="empty"><span class="empty-icon">✉</span>Ainda sem emails.<br>Os emails são gerados automaticamente após cada ciclo.</div>
+  </div>
+</div>
+
+<!-- ═══ SIMULATOR ═══ -->
+<div class="panel" id="panel-simulator">
+  <div class="page-title">Simulador RTM</div>
+  <div class="page-sub">Analisa manualmente um evento específico face a uma marca.</div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px" id="sim-pills">
+    <button class="filter-btn active" data-brand="adamus" onclick="simSelectBrand(this)">Adamus Gin</button>
+    <button class="filter-btn" data-brand="arieiro" onclick="simSelectBrand(this)">Água do Arieiro</button>
+    <button class="filter-btn" data-brand="candycat" onclick="simSelectBrand(this)">Candycat</button>
+  </div>
+
+  <div class="card">
+    <div class="setting-row"><label>Evento / notícia *</label><input type="text" id="sim-ev" placeholder="Ex: Lisboa eleita melhor destino europeu 2025"></div>
+    <div class="setting-row"><label>Contexto adicional</label><input type="text" id="sim-ctx" placeholder="Onde está a circular, tom emocional, detalhes…"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="setting-row"><label>Fonte</label><input type="text" id="sim-src" placeholder="Twitter PT, Público…"></div>
+      <div class="setting-row"><label>Urgência</label><select id="sim-urg"><option value="alta">Alta — < 2 horas</option><option value="media" selected>Média — hoje</option><option value="baixa">Baixa — esta semana</option></select></div>
+    </div>
+    <button class="btn-primary" id="sim-btn" onclick="runSim()">Analisar com IA →</button>
+  </div>
+  <div id="sim-result"></div>
+</div>
+
+<!-- ═══ BRANDS ═══ -->
+<div class="panel" id="panel-brands">
+  <div class="page-title">Marcas</div>
+  <div class="page-sub">Perfis de comunicação profundos. Adiciona uma marca e a IA constrói o perfil automaticamente.</div>
+
+  <div class="card" style="border-color:rgba(251,191,36,.25);margin-bottom:20px">
+    <div class="card-title" style="color:var(--amber)">+ Adicionar nova marca</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Nome da marca *</label>
+        <input type="text" id="new-brand-name" placeholder="Ex: Super Bock" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Setor / categoria</label>
+        <input type="text" id="new-brand-sector" placeholder="Ex: Cerveja, Moda, Restauração…" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none">
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Website ou Instagram (opcional)</label>
+      <input type="text" id="new-brand-url" placeholder="Ex: instagram.com/superbock ou superbock.pt" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none">
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Notas adicionais (opcional)</label>
+      <textarea id="new-brand-notes" placeholder="Qualquer contexto relevante que queiras passar à IA…" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none;resize:vertical;min-height:64px"></textarea>
+    </div>
+    <button class="btn-primary" id="add-brand-btn" onclick="addBrand()">Construir perfil com IA →</button>
+    <div id="add-brand-status" style="font-size:12px;color:var(--amber);margin-top:10px;display:none"></div>
+  </div>
+
+  <div id="brands-list"></div>
+</div>
+
+<!-- ═══ ANALYTICS ═══ -->
+<div class="panel" id="panel-analytics">
+  <div class="page-title">Analytics</div>
+  <div class="page-sub">Desempenho acumulado de todas as análises.</div>
+  <div id="analytics-content"><div class="empty"><span class="empty-icon">◈</span>Corre ciclos para ver dados aqui.</div></div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div class="panel" id="panel-settings">
+  <div class="page-title">Definições</div>
+  <div class="page-sub">Configuração da plataforma Triber Orbit.</div>
+
+  <div class="card">
+    <div class="card-title">Chave API Anthropic</div>
+    <div class="setting-row">
+      <label>Obrigatória para activar a IA. Guardada localmente no browser.</label>
+      <div class="input-row">
+        <input type="password" id="key-input" placeholder="sk-ant-api03-…">
+        <button class="btn-sec" onclick="saveKey()">Guardar</button>
+      </div>
+      <div id="key-status" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Ciclo automático</div>
+    <div class="setting-row">
+      <label>Intervalo entre ciclos</label>
+      <select id="cycle-interval">
+        <option value="30">30 minutos (recomendado)</option>
+        <option value="60">60 minutos</option>
+        <option value="15">15 minutos (intensivo)</option>
+      </select>
+    </div>
+    <div class="setting-row" style="opacity:.5">
+      <label>Notícias por ciclo</label>
+      <select id="news-per-cycle"><option value="8" selected>Automático — pesquisa multi-fonte</option></select>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">A plataforma pesquisa em 4 fontes paralelas sem limite artificial.</div>
+    </div>
+    <div class="setting-row">
+      <label>Score mínimo para incluir no email</label>
+      <select id="min-score">
+        <option value="40" selected>40 — incluir tudo acima</option>
+        <option value="55">55 — só relevantes</option>
+        <option value="70">70 — só prioritárias</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Sobre o Triber Orbit</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.8">
+      <b style="color:var(--text)">Versão 1.0</b> — Desenvolvido no âmbito do estágio na Triber Agency.<br>
+      Motor de IA: Claude Sonnet (Anthropic API)<br>
+      Marcas: Adamus Gin · Água do Arieiro · Candycat<br>
+      <em style="color:var(--text3)">"Transformar o Real-Time Marketing de uma reação intuitiva numa decisão estratégica."</em>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// BRAND DATA
+// ════════════════════════════════════════
+function saveBrands(){try{localStorage.setItem('orbit_brands_v3',JSON.stringify(BRANDS));}catch(e){}}
+function loadStoredBrands(){try{const s=localStorage.getItem('orbit_brands_v3');return s?JSON.parse(s):null;}catch(e){return null;}}
+
+const BRANDS = loadStoredBrands() || {
+  adamus:{
+    name:'Adamus Gin',color:'amber',
+    sector:'Espirituosas super-premium, Bairrada',
+    positioning:'Bebida sublime que afeta todos os sentidos. Sucesso, celebração, descoberta do extraordinário.',
+    personality:'Elegante, autêntica, sofisticada, misteriosa mas simpática.',
+    tone:'Sofisticado, sóbrio, persuasivo. Nunca vulgar ou barulhento.',
+    values:'Exclusividade, Unicidade, Qualidade, Paixão, Excelência, Sustentabilidade',
+    target:'Homens e mulheres 30-50 anos, classe alta, gostos requintados, viajados.',
+    topics_yes:'Gastronomia premium, design, experiências sensoriais, viagens de luxo, celebração entre amigos, conquistas, lifestyle de sucesso.',
+    topics_no:'Política, religião, futebol, show off, superficialidade, massas.',
+    authority:'Gastronomia premium, cocktails artesanais, eventos gastronómicos, design, lifestyle de luxo sustentável.'
+  },
+  arieiro:{
+    name:'Água do Arieiro',color:'green',
+    sector:'Água gaseificada histórica, Caldas da Rainha desde 1909',
+    positioning:'Descoberta. Como a Rainha D. Leonor descobriu as águas de Caldas, o consumidor vai descobrir a Água do Arieiro.',
+    personality:'Leal, cuidadosa, saudável, culta, moderna, curiosa.',
+    tone:'Culto, curioso, empático, descontraído com substância.',
+    values:'Lealdade, História, Modernidade, Empatia, Curiosidade, Saúde',
+    target:'Jovens adultos urbanos com estilo de vida saudável. Preocupados com cultura e bem-estar.',
+    topics_yes:'História portuguesa, vida saudável, momentos de pausa, curiosidade e descoberta, gastronomia, cultura.',
+    topics_no:'Política, religião, futebol nacional, sexo, morte, doenças, temas tristes.',
+    authority:'Vida saudável, hidratação, cultura gastronómica portuguesa, descoberta de sabores, tradição e modernidade.',
+    communication_style:'Tom de descoberta e curiosidade. Usa emojis com moderação — 💧🌿✨. Partilha factos históricos. Comprimento médio. Sempre positivo e curioso.',
+    post_examples:'• "Sabia que em 1909 a Rainha D. Leonor já sabia o que é bom? 💧"\n• "Pausa. Respira. Hidrata. 🌿"\n• "A melhor versão de ti começa por dentro."\n• "Caldas da Rainha tem mais história do que imaginas."'
+  },
+  candycat:{
+    name:'Candycat Chocolats',color:'red',
+    sector:'Confeitaria premium acessível, Portugal desde 1995',
+    positioning:'Desfrutar. Confeitaria pensada para o consumidor português.',
+    personality:'Doce, suave, elegante, jovem mas madura, feminina, generosa.',
+    tone:'Caloroso, feminino, cativante, elegante sem ser pretensioso.',
+    values:'Qualidade, Elegância, Emoção, Prazer, Generosidade',
+    target:'Mulheres 35+, famílias, momentos de partilha, épocas festivas.',
+    topics_yes:'Momentos de partilha, família, qualidade, épocas festivas, pequenos prazeres da vida.',
+    topics_no:'Dietas, açúcar, diabetes, futebol, política, religião, sexo, morte.',
+    authority:'Momentos festivos, Natal, Páscoa, presentes, celebrações familiares, pequenas indulgências.',
+    communication_style:'Tom quente e próximo. Emojis generosos — 🍫🎁💕✨🌸. Frases que evocam emoções e memórias. Foca nos momentos e nas pessoas. Usa perguntas retóricas e hashtags.',
+    post_examples:'• "Porque os melhores momentos merecem ser saboreados com calma. 🍫💕"\n• "Para as tuas pessoas favoritas, os chocolates favoritos. 🎁"\n• "Há momentos que só o chocolate consegue descrever. ✨"\n• "A vida é curta. Come o chocolate. 🍫 #CandycatChocolats"'
+  }
+};
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+function loadHistory(){
+  try{const h=localStorage.getItem('orbit_history_v3');return h?JSON.parse(h):{allOpps:[],allEmails:[],cycles:0,totalNews:0,totalOpps:0,totalEmails:0};}
+  catch(e){return {allOpps:[],allEmails:[],cycles:0,totalNews:0,totalOpps:0,totalEmails:0};}
+}
+function saveHistory(){
+  try{localStorage.setItem('orbit_history_v3',JSON.stringify({allOpps:state.allOpps.slice(0,200).map(o=>({...o,ts:o.ts?.toISOString?.()||o.ts})),allEmails:state.allEmails.slice(0,20),cycles:state.cycles,totalNews:state.totalNews,totalOpps:state.totalOpps,totalEmails:state.totalEmails}));}
+  catch(e){}
+}
+const _h=loadHistory();
+let state = {
+  running:false, cycleTimer:null, countdownTimer:null,
+  cycles:_h.cycles||0, totalNews:_h.totalNews||0, totalOpps:_h.totalOpps||0, totalEmails:_h.totalEmails||0,
+  allOpps:(_h.allOpps||[]).map(o=>({...o,ts:new Date(o.ts||Date.now())})),
+  allEmails:_h.allEmails||[], allNews:[],
+  currentFilter:'all', simBrand:'adamus',
+  countdown:0, intervalSec:1800
+};
+
+
+// ════════════════════════════════════════
+// API
+// ════════════════════════════════════════
+function getKey(){ return localStorage.getItem('orbit_api_key')||''; }
+function saveKey(){
+  const k=document.getElementById('key-input').value.trim();
+  if(k){localStorage.setItem('orbit_api_key',k);document.getElementById('key-status').textContent='✓ Chave guardada.';}
+}
+
+async function claude(prompt,maxTok=1200,useSearch=false){
+  const key=getKey();
+  if(!key) throw new Error('Sem chave API. Vai a Definições.');
+  const body=useSearch
+    ?{model:'claude-sonnet-4-5',max_tokens:maxTok,messages:[{role:'user',content:prompt}],tools:[{type:'web_search_20250305',name:'web_search'}]}
+    :{model:'claude-sonnet-4-5',max_tokens:maxTok,messages:[{role:'user',content:prompt}]};
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify(body)
+  });
+  const d=await r.json();
+  if(d.error) throw new Error(d.error.message);
+  const raw=d.content.filter(i=>i.type==='text').map(i=>i.text).join('');
+  // Robust: extract first JSON block, ignoring any text before it
+  const m=raw.match(/[{[][\s\S]*/);
+  if(!m) throw new Error('Sem JSON na resposta da IA');
+  return JSON.parse(m[0].replace(/```json|```/g,'').trim());
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════
+function nav(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  if(id==='analytics') renderAnalytics();
+  if(id==='feed') renderFeed();
+  if(id==='email') renderEmailList();
+  if(id==='settings'){
+    const k=getKey();
+    if(k) document.getElementById('key-input').value=k;
+    document.getElementById('key-status').textContent=k?'✓ Chave configurada.':'Sem chave configurada.';
+  }
+}
+
+// ════════════════════════════════════════
+// MONITOR — MAIN CYCLE
+// ════════════════════════════════════════
+function log(msg,type=''){
+  const w=document.getElementById('log');
+  const now=new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const d=document.createElement('div');
+  d.className='log-line '+(type||'');
+  d.textContent=`[${now}] ${msg}`;
+  w.prepend(d);
+  while(w.children.length>50) w.lastChild.remove();
+}
+
+
+function updateStats(){
+  document.getElementById('s-cycles').textContent=state.cycles;
+  document.getElementById('s-news').textContent=state.totalNews;
+  document.getElementById('s-opps').textContent=state.allOpps.filter(o=>o.score>=70).length;
+  document.getElementById('s-emails').textContent=state.totalEmails;
+}
+
+async function startCycle(){
+  if(!getKey()){alert('Configura a chave API em Definições primeiro.');nav('settings',document.querySelector('.nav-item:last-child'));return;}
+  if(state.running) return;
+  state.running=true;
+  document.getElementById('btn-start').disabled=true;
+  document.getElementById('btn-stop').style.display='block';
+  document.getElementById('btn-now').style.display='block';
+  updateSidebar();
+  await runCycle();
+  // schedule next
+  const interval=parseInt(document.getElementById('cycle-interval')?.value||'30')*60*1000;
+  state.intervalSec=interval/1000;
+  state.countdown=state.intervalSec;
+  startCountdown();
+}
+
+function startCountdown(){
+  if(state.countdownTimer) clearInterval(state.countdownTimer);
+  state.countdownTimer=setInterval(()=>{
+    state.countdown--;
+    const m=Math.floor(state.countdown/60), s=state.countdown%60;
+    document.getElementById('monitor-cycle').textContent=`Próximo ciclo em ${m}:${String(s).padStart(2,'0')}`;
+    const pct=(1-(state.countdown/state.intervalSec))*100;
+    document.getElementById('monitor-fill')&&(document.getElementById('monitor-fill').style.width=pct+'%');
+    const circ=113*(state.countdown/state.intervalSec);
+    document.getElementById('ring-circle').setAttribute('stroke-dashoffset',circ);
+    document.getElementById('cycle-num').textContent=Math.round(100-pct)+'%';
+    if(state.countdown<=0 && state.running){
+      state.countdown=state.intervalSec;
+      runCycle();
+    }
+  },1000);
+}
+
+function runNow(){
+  // Force an immediate cycle without resetting the countdown
+  if(!getKey()){alert('Configura a chave API primeiro.');return;}
+  runCycle();
+}
+
+function stopMonitor(){
+  state.running=false;
+  if(state.countdownTimer) clearInterval(state.countdownTimer);
+  document.getElementById('btn-start').disabled=false;
+  document.getElementById('btn-stop').style.display='none';
+  document.getElementById('btn-now').style.display='none';
+  document.getElementById('monitor-status').textContent='Parado';
+  document.getElementById('monitor-cycle').textContent='Ciclo automático pausado';
+  document.getElementById('ring-circle').setAttribute('stroke-dashoffset','113');
+  document.getElementById('cycle-num').textContent='—';
+  updateSidebar();
+  log('Monitor parado pelo utilizador.','err');
+}
+
+async function runCycle(){
+  state.cycles++;
+  document.getElementById('monitor-status').textContent=`Ciclo #${state.cycles} — A recolher notícias…`;
+  document.getElementById('sf-timer').textContent=`Ciclo #${state.cycles} a correr`;
+  log(`Ciclo #${state.cycles} iniciado.`,'info');
+
+  // Step 1: generate news
+  let news=[];
+  try{
+    document.getElementById('monitor-status').textContent=`Ciclo #${state.cycles} — A gerar notícias simuladas…`;
+    news=await generateNews();
+    state.totalNews+=news.length;
+    state.allNews=[...news,...state.allNews].slice(0,50);
+    renderTicker(news);
+    log(`${news.length} notícias geradas.`,'ok');
+    updateStats();
+  }catch(e){
+    log('Erro ao gerar notícias: '+e.message,'err');
+    document.getElementById('monitor-status').textContent='Erro no ciclo. A aguardar próximo ciclo.';
+    return;
+  }
+
+  // Step 2: analyse each news × each brand
+  const results=[];
+  const brandKeys=Object.keys(BRANDS);
+  const total=news.length*brandKeys.length;
+  let done=0;
+
+  for(const n of news){
+    for(const bk of brandKeys){
+      document.getElementById('monitor-status').textContent=`Ciclo #${state.cycles} — A analisar: ${BRANDS[bk].name} × "${n.title.substring(0,30)}…"`;
+      try{
+        const r=await analysePair(n,bk);
+        results.push({...r,news:n,brandKey:bk,ts:new Date()});
+        if(r.score>=40){
+          state.allOpps.unshift({...r,news:n,brandKey:bk,ts:new Date()});
+          state.totalOpps++;
+        }
+        log(`${BRANDS[bk].name} × "${n.title.substring(0,25)}…" → ${r.score}/100 (${r.verdict})`);
+      }catch(e){
+        log(`Erro análise ${BRANDS[bk].name}: `+e.message,'err');
+      }
+      done++;
+    }
+  }
+
+  updateStats();
+  renderMonitorResults();
+  updateBadges();
+  saveHistory();
+
+  // Step 3: generate email
+  const minScore=parseInt(document.getElementById('min-score')?.value||'40');
+  const emailOpps=results.filter(r=>r.score>=minScore).sort((a,b)=>b.score-a.score).slice(0,8);
+
+  if(emailOpps.length>0){
+    document.getElementById('monitor-status').textContent=`Ciclo #${state.cycles} — A gerar email Triber Orbit…`;
+    try{
+      const email=await generateEmail(emailOpps, state.cycles);
+      state.allEmails.unshift(email);
+      state.totalEmails++;
+      log(`Email Triber Orbit gerado com ${emailOpps.length} oportunidades.`,'ok');
+      updateStats();
+      updateBadges();
+    }catch(e){
+      log('Erro ao gerar email: '+e.message,'err');
+    }
+  }else{
+    log('Nenhuma oportunidade acima do threshold — email não gerado.');
+  }
+
+  document.getElementById('monitor-status').textContent=`Ciclo #${state.cycles} concluído`;
+  document.getElementById('sf-timer').textContent=`Último ciclo: ${new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// ════════════════════════════════════════
+// STEP 1 — DEEP MULTI-SOURCE RESEARCH
+// ════════════════════════════════════════
+async function generateNews(){
+  const today=new Date().toLocaleDateString('pt-PT');
+  const dayOfWeek=new Date().toLocaleDateString('pt-PT',{weekday:'long'});
+  log('Camada 1 — A recolher notícias…','layer');
+  const allNews=[];
+
+  // Search 1: ONE real web search for today's PT news (light prompt to save tokens)
+  try{
+    log('  ↳ Pesquisa web: notícias PT hoje…');
+    const r1=await claude(`Pesquisa notícias de hoje em Portugal. APENAS JSON: {"news":[{"title":"<título>","summary":"<1 frase>","source":"<fonte>","category":"<categoria>","tone":"<positivo|neutro|negativo>","urgency":"<alta|media|baixa>"}]}`,600,true);
+    if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias PT','ok');}
+  }catch(e){log('  ↳ Erro web search: '+e.message.substring(0,60),'err');}
+
+  await sleep(5000);
+
+  // Search 2: IA generates events/calendar without web search (cheap)
+  try{
+    log('  ↳ A gerar efemérides e eventos da semana…');
+    const r2=await claude(`Hoje é ${dayOfWeek}, ${today}. Lista eventos culturais, efemérides, datas comemorativas, festivais, estreias e acontecimentos desta semana em Portugal e internacionalmente. Sê criativo e abrangente. APENAS JSON: {"news":[{"title":"<evento>","summary":"<1 frase>","source":"<tipo de fonte>","category":"<categoria>","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,700,false);
+    if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' eventos/efemérides','ok');}
+  }catch(e){log('  ↳ Erro efemérides: '+e.message.substring(0,60),'err');}
+
+  await sleep(3000);
+
+  // Search 3: IA generates trending cultural topics (cheap, no web search)
+  try{
+    log('  ↳ A identificar tendências culturais relevantes…');
+    const brandCtx=Object.values(BRANDS).map(b=>b.name+' ('+b.sector+')').join(', ');
+    const r3=await claude(`Que tendências culturais, movimentos, conversas e temas estão em alta agora (${today}) que possam ser relevantes para estas marcas: ${brandCtx}? Pensa em gastronomia, lifestyle, bem-estar, música, arte, sustentabilidade, momentos de partilha. APENAS JSON: {"news":[{"title":"<tendência>","summary":"<1 frase>","source":"Tendência cultural","category":"tendência","tone":"positivo","urgency":"media"}]}`,600,false);
+    if(r3.news){allNews.push(...r3.news);log('  ↳ '+r3.news.length+' tendências','ok');}
+  }catch(e){log('  ↳ Erro tendências: '+e.message.substring(0,60),'err');}
+
+  // Deduplicate
+  const seen=new Set();
+  const deduped=allNews.filter(n=>{
+    const k=(n.title||'').toLowerCase().substring(0,35);
+    if(seen.has(k))return false;
+    seen.add(k);return true;
+  }).filter(n=>n.title&&n.title.length>3);
+
+  log('  ↳ '+deduped.length+' eventos únicos de '+allNews.length+' totais.','ok');
+  return deduped;
+}
+
+
+// ════════════════════════════════════════
+// 5-LAYER PIPELINE
+// ════════════════════════════════════════
+
+async function layer2_cultural(news){
+  try{
+    return await claude(`Analisa culturalmente para RTM. APENAS JSON.
+Evento: "${news.title}" | ${news.summary} | Cat: ${news.category} | Tom: ${news.tone}
+{"rtm_potential":"<alto|medio|baixo>","cultural_hooks":["<hook/frase icónica/letra>","<outro>","<outro>"],"emotional_territory":"<território emocional>","audience_pt":"<quem fala disto em PT>","brand_signals":{"premium_spirits":"<sim/nao-porquê>","healthy_water":"<sim/nao-porquê>","chocolate_gifting":"<sim/nao-porquê>"},"risk_flags":["<risco>"]}`,500);
+  }catch(e){return {rtm_potential:'baixo',cultural_hooks:[],emotional_territory:'',audience_pt:'',brand_signals:{},risk_flags:[]};}
+}
+
+async function layer3_filter(news,brandKey){
+  const b=BRANDS[brandKey];
+  const sig=brandKey==='adamus'?news.brand_signals?.premium_spirits:brandKey==='arieiro'?news.brand_signals?.healthy_water:news.brand_signals?.chocolate_gifting;
+  return claude(`Analisa se este evento tem potencial RTM para esta marca. Sê honesto mas não descortes tudo — se há um ângulo criativo genuíno, avança. APENAS JSON.
+
+Evento: "${news.title}" | ${news.summary||''}
+Potencial geral: ${news.rtm_potential||'?'} | Sinal para esta marca: ${sig||'?'}
+Hooks disponíveis: ${JSON.stringify(news.cultural_hooks||[])}
+Território emocional: ${news.emotional_territory||'?'}
+
+Marca: ${b.name} | Setor: ${b.sector}
+Posicionamento: ${b.positioning}
+Autoridade natural: ${b.authority}
+NUNCA fala de: ${b.topics_no}
+Tom: ${b.tone}
+
+CRITÉRIOS para avançar (basta UM ser verdade):
+- Há ligação genuína entre o evento e o universo da marca
+- A marca tem autoridade natural para reagir a este tema
+- Existe um hook criativo específico para esta marca
+
+CRITÉRIOS para descartar (basta UM):
+- O evento está explicitamente na lista NUNCA
+- Associar-se causaria dano reputacional claro
+- Não há absolutamente nenhum ângulo possível
+
+{"proceed":true|false,"reason":"<1 frase honesta>","potential_angle":"<ângulo específico se avança, vazio se não>","confidence":"<alto|medio|baixo>"}`,400);
+}
+
+async function layer4_creative(news,brandKey,filter){
+  const b=BRANDS[brandKey];
+  return claude(`És o diretor criativo sénior da Triber Agency. Cria o pacote criativo RTM completo para esta marca. APENAS JSON.
+
+EVENTO: "${news.title}" | ${news.summary}
+Hooks culturais: ${JSON.stringify(news.cultural_hooks||[])}
+Território emocional: ${news.emotional_territory||''}
+Ângulo aprovado na triagem: ${filter.potential_angle||''}
+
+MARCA: ${b.name}
+COMO COMUNICA REALMENTE:
+${b.communication_style||b.tone}
+EXEMPLOS DE POSTS REAIS DESTA MARCA:
+${b.post_examples||''}
+Target: ${b.target} | Posicionamento: ${b.positioning}
+NUNCA: ${b.topics_no}
+
+REGRAS CRIATIVAS:
+1. Usa os hooks culturais de forma INTELIGENTE — ângulo inesperado, não óbvio
+2. O copy deve soar EXACTAMENTE como esta marca — tom, emojis, comprimento, estrutura como nos exemplos
+3. A imagem deve ser executável por um designer em 2 horas
+4. O copy da imagem (texto sobreposto) deve ser curto e impactante — máximo 6 palavras
+5. A descrição da imagem deve ser detalhada o suficiente para briefar um designer ou gerador de imagem
+6. Acrescenta algo à conversa — não apenas "pegar boleia"
+
+APENAS JSON:
+{
+  "creative_angle": "<como ligas o evento ao universo da marca de forma não óbvia>",
+  "concept": "<big idea em 1-2 frases — o que torna este RTM especial>",
+  "copy_image": "<texto curto e impactante para sobrepor na imagem — máx 6 palavras, no tom desta marca>",
+  "visual_description": "<descrição detalhada da imagem/vídeo para briefar um designer: o que se vê, cores, estilo, elementos visuais, mood, composição — específico para esta marca>",
+  "caption": "<legenda completa do post no tom EXACTO desta marca, com emojis e hashtags se adequado — deve parecer escrito pela própria marca>",
+  "format": "<Reel|Carrossel|Post estático|Story>",
+  "platform": "<Instagram|LinkedIn|Instagram+LinkedIn|Twitter/X>",
+  "window_h": <horas de relevância>,
+  "briefing_notes": "<notas adicionais para a equipa criativa — o que é essencial transmitir ao designer>"
+}`,1100);
+}
+
+async function layer5_score(news,brandKey,filter,creative){
+  const b=BRANDS[brandKey];
+  return claude(`Scoring RIGOROSO e DIFERENCIADO. O mesmo evento para marcas diferentes TEM scores diferentes. 80+ é raro. Risco: 10=sem risco, 0=alto. APENAS JSON.
+Evento: "${news.title}" | Marca: ${b.name} | Ângulo: ${creative.creative_angle||''} | Copy: "${(creative.copy||'').substring(0,100)}…" | Confiança triagem: ${filter.confidence||'medio'}
+{"score":<0-100>,"verdict":"<go|wait|no>","reason":"<1 frase honesta>","scores":{"relevancia":<0-20>,"valores":<0-20>,"autoridade":<0-15>,"janela":<0-15>,"engagement":<0-15>,"risco":<0-10>,"originalidade":<0-5>},"why":"<2-3 frases — o que torna especial OU porquê não é mais alto>"}`,500);
+}
+
+async function analysePair(news,brandKey){
+  const enriched=news.cultural_hooks?news:{...news,...(await layer2_cultural(news))};
+  await sleep(2000);
+
+  const baseReturn=(extra)=>({cultural_hooks:enriched.cultural_hooks||[],emotional_territory:enriched.emotional_territory||'',creative_angle:'',concept:'',copy_image:'',visual_description:'',caption:'',format:'',platform:'',window_h:0,briefing_notes:'',...extra});
+
+  let filter;
+  try{filter=await layer3_filter(enriched,brandKey);}
+  catch(e){filter={proceed:true,reason:'Triagem automática',confidence:'medio',potential_angle:'a explorar'};}
+
+  if(!filter.proceed){
+    return baseReturn({score:Math.floor(Math.random()*20)+5,verdict:'no',reason:filter.reason,scores:{relevancia:4,valores:3,autoridade:2,janela:4,engagement:3,risco:8,originalidade:0},why:filter.reason});
+  }
+
+  await sleep(2000);
+  let creative;
+  try{creative=await layer4_creative(enriched,brandKey,filter);}
+  catch(e){creative={creative_angle:'',concept:'',copy_image:'',visual_description:'',caption:'',format:'Post estático',platform:'Instagram',window_h:24,briefing_notes:''};}
+
+  await sleep(2000);
+  let scored;
+  try{scored=await layer5_score(enriched,brandKey,filter,creative);}
+  catch(e){scored={score:50,verdict:'wait',reason:'Score estimado',scores:{relevancia:10,valores:10,autoridade:8,janela:8,engagement:8,risco:8,originalidade:3},why:''};}
+
+  return baseReturn({...scored,creative_angle:creative.creative_angle||'',concept:creative.concept||'',copy_image:creative.copy_image||'',visual_description:creative.visual_description||'',caption:creative.caption||'',format:creative.format||'',platform:creative.platform||'',window_h:creative.window_h||24,briefing_notes:creative.briefing_notes||''});
+}
+
+
+// ════════════════════════════════════════
+// BRAND ONBOARDING
+// ════════════════════════════════════════
+async function addBrand(){
+  const name=document.getElementById('new-brand-name')?.value.trim();
+  if(!name){alert('Introduz o nome da marca.');return;}
+  if(!getKey()){alert('Configura a chave API primeiro.');return;}
+  const sector=document.getElementById('new-brand-sector')?.value.trim()||'';
+  const url=document.getElementById('new-brand-url')?.value.trim()||'';
+  const notes=document.getElementById('new-brand-notes')?.value.trim()||'';
+  const btn=document.getElementById('add-brand-btn');
+  const status=document.getElementById('add-brand-status');
+  btn.disabled=true; btn.textContent='A construir perfil…';
+  if(status){status.style.display='block';status.textContent='🔍 A pesquisar comunicação da marca…';}
+  const msgs=['📱 A analisar tom de voz e posts…','🎯 A identificar autoridade e temas…','⚠️ A mapear guardrails…','✍️ A finalizar perfil…'];
+  let mi=0; const st=setInterval(()=>{if(mi<msgs.length&&status){status.textContent=msgs[mi++];}},2000);
+  try{
+    const r=await claude(`Analisa a comunicação da marca "${name}" ${sector?'('+sector+')':''} ${url?'em '+url:''}.
+${notes?'Contexto: '+notes:''}
+Com base no que sabes sobre esta marca, constrói um perfil de comunicação completo e detalhado. APENAS JSON:
+{"name":"${name}","sector":"<setor>","positioning":"<posicionamento 1-2 frases>","personality":"<5 adjetivos>","tone":"<tom de voz detalhado>","values":"<valores, vírgulas>","target":"<target demográfico e psicográfico>","topics_yes":"<temas com autoridade>","topics_no":"<temas a evitar SEMPRE>","authority":"<áreas com credibilidade RTM>","communication_style":"<estilo detalhado: comprimento, emojis, estrutura, frequência, registo>","post_examples":"<4 exemplos simulados de posts no tom real desta marca, separados por \\n>","tags":["<tag1>","<tag2>","<tag3>","<tag4>","<tag5>"],"color":"<amber|green|red|blue|purple>"}`,1400,true);
+    clearInterval(st);
+    const key='brand_'+name.toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,15)+'_'+Date.now().toString().slice(-4);
+    BRANDS[key]={...r,key,auto_profiled:true,profiled_at:new Date().toISOString()};
+    saveBrands();
+    ['new-brand-name','new-brand-sector','new-brand-url','new-brand-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    if(status)status.style.display='none';
+    btn.disabled=false; btn.textContent='Construir perfil com IA →';
+    renderBrandsList(); renderSimPills(); updateBadges();
+    alert('✓ Perfil de "'+r.name+'" criado!');
+  }catch(e){
+    clearInterval(st);
+    if(status)status.style.display='none';
+    btn.disabled=false; btn.textContent='Construir perfil com IA →';
+    alert('Erro: '+e.message);
+  }
+}
+
+function deleteBrand(key){
+  if(!confirm('Apagar "'+BRANDS[key]?.name+'"?'))return;
+  delete BRANDS[key]; saveBrands(); renderBrandsList(); renderSimPills(); updateBadges();
+}
+
+// ════════════════════════════════════════
+// STEP 3 — GENERATE EMAIL
+// ════════════════════════════════════════
+async function generateEmail(opps,cycleNum){
+  const go=opps.filter(o=>o.score>=70);
+  const wait=opps.filter(o=>o.score>=40&&o.score<70);
+  const now=new Date();
+  const time=now.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+  const date=now.toLocaleDateString('pt-PT');
+
+  const goStr=go.length>0?'🔴 '+go.length+' prioritária'+(go.length>1?'s':''):'';
+  const waitStr=wait.length>0?'🟡 '+wait.length+' para consideração':'';
+  const sep=(go.length>0&&wait.length>0)?' · ':'';
+  const subject=`[TRIBER ORBIT] ${goStr}${sep}${waitStr} — ${time} de ${date}`;
+
+  return {
+    subject, time, date, cycleNum,
+    priority:go.map(o=>({
+      brand:BRANDS[o.brandKey].name, brandKey:o.brandKey, event:o.news.title,
+      score:o.score, concept:o.concept, copy_image:o.copy_image||'', visual_description:o.visual_description||'',
+      caption:o.caption||'', format:o.format, platform:o.platform, window_h:o.window_h, why:o.why,
+      creative_angle:o.creative_angle||'', source:o.news.source
+    })),
+    consider:wait.map(o=>({
+      brand:BRANDS[o.brandKey].name, brandKey:o.brandKey, event:o.news.title,
+      score:o.score, concept:o.concept, copy_image:o.copy_image||'',
+      caption:o.caption||'', format:o.format, platform:o.platform, window_h:o.window_h
+    }))
+  };
+}
+
+// ════════════════════════════════════════
+// RENDER — TICKER
+// ════════════════════════════════════════
+function renderTicker(news){
+  const w=document.getElementById('ticker-items');
+  w.innerHTML=news.map(n=>`<div class="ticker-item">
+    <span class="ticker-src">${n.source}</span>
+    <span>${n.title}</span>
+    <span class="ticker-time">${n.urgency==='alta'?'⚡':n.urgency==='media'?'●':'○'}</span>
+  </div>`).join('');
+}
+
+// ════════════════════════════════════════
+// RENDER — MONITOR RESULTS (latest cycle)
+// ════════════════════════════════════════
+function renderMonitorResults(){
+  const recent=state.allOpps.slice(0,6);
+  const el=document.getElementById('monitor-results');
+  if(!recent.length){el.innerHTML='<div class="empty"><span class="empty-icon">◎</span>Nenhuma oportunidade acima do threshold.</div>';return;}
+  el.innerHTML=recent.map(o=>renderOppCard(o,'compact')).join('');
+}
+
+// ════════════════════════════════════════
+// RENDER — FEED
+// ════════════════════════════════════════
+function renderFeed(){
+  const f=state.currentFilter;
+  let items=state.allOpps;
+  if(f==='go') items=items.filter(o=>o.score>=70);
+  else if(f==='wait') items=items.filter(o=>o.score>=40&&o.score<70);
+  else if(f==='no') items=items.filter(o=>o.score<40);
+  else if(['adamus','arieiro','candycat'].includes(f)) items=items.filter(o=>o.brandKey===f);
+
+  const el=document.getElementById('feed-list');
+  if(!items.length){el.innerHTML='<div class="empty"><span class="empty-icon">▦</span>Sem oportunidades para este filtro.</div>';return;}
+  el.innerHTML=items.map(o=>renderOppCard(o,'full')).join('');
+}
+
+function filterFeed(f,el){
+  state.currentFilter=f;
+  document.querySelectorAll('#panel-feed .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderFeed();
+}
+
+// ════════════════════════════════════════
+// RENDER — OPP CARD
+// ════════════════════════════════════════
+function renderOppCard(o,mode){
+  const sc=o.score>=70?'high':o.score>=45?'mid':'low';
+  const cls=o.score>=70?'priority':o.score>=45?'consider':'discarded';
+  const vmap={go:['v-go','✓ Avançar'],wait:['v-wait','⏸ Considerar'],no:['v-no','✕ Descartada']};
+  const [vc,vt]=vmap[o.verdict]||vmap['no'];
+  const t=o.ts.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+
+  const bars=mode==='full'?`<div class="score-bars">
+    ${sb('Relevância cultural',o.scores?.relevancia||0,20)}
+    ${sb('Alinhamento valores',o.scores?.valores||0,20)}
+    ${sb('Autoridade da marca',o.scores?.autoridade||0,15)}
+    ${sb('Janela temporal',o.scores?.janela||0,15)}
+    ${sb('Potencial engagement',o.scores?.engagement||0,15)}
+    ${sb('Risco reputacional',o.scores?.risco||0,10)}
+    ${sb('Originalidade',o.scores?.originalidade||0,5)}
+  </div>`:'';
+
+  const hooksHtml=o.cultural_hooks&&o.cultural_hooks.length&&mode==='full'?`
+    <div class="concept-section">
+      <div class="concept-lbl">Hooks culturais detectados</div>
+      <div class="chips" style="margin-top:4px">${(o.cultural_hooks||[]).map(h=>`<span class="chip" style="color:var(--blue);border-color:rgba(96,165,250,.3)">${h}</span>`).join('')}</div>
+      ${o.emotional_territory?`<div style="font-size:11px;color:var(--text3);margin-top:6px">Território emocional: ${o.emotional_territory}</div>`:''}
+    </div>`:'';
+
+  const creative=o.score>=40&&mode==='full'?`
+    ${hooksHtml}
+    ${o.creative_angle?`<div class="concept-section"><div class="concept-lbl">Ângulo criativo · Camada 4</div><div class="concept-text" style="color:var(--blue);font-weight:500">${o.creative_angle}</div></div>`:''}
+    <div class="concept-section">
+      <div class="concept-lbl">Conceito</div>
+      <div class="concept-text">${o.concept||''}</div>
+    </div>
+    <div class="concept-section">
+      <div class="concept-lbl" style="color:var(--amber)">Copy da imagem</div>
+      <div style="background:var(--bg4);border:1px solid rgba(251,191,36,.25);border-radius:var(--rsm);padding:14px 16px;margin-top:6px;text-align:center;font-size:18px;font-weight:700;letter-spacing:.02em;color:var(--text)">${o.copy_image||''}</div>
+    </div>
+    <div class="concept-section">
+      <div class="concept-lbl" style="color:var(--purple)">Descrição visual da imagem</div>
+      <div class="concept-text" style="color:var(--text2);background:var(--bg3);padding:12px 14px;border-radius:var(--rsm);border-left:2px solid rgba(192,132,252,.5);margin-top:6px">${o.visual_description||''}</div>
+    </div>
+    <div class="concept-section">
+      <div class="concept-lbl">Caption / legenda do post</div>
+      <div class="copy-box">${o.caption||''}</div>
+    </div>
+    ${o.briefing_notes?`<div class="concept-section"><div class="concept-lbl">Notas para o designer</div><div class="concept-text" style="color:var(--text3)">${o.briefing_notes}</div></div>`:''}
+    <div class="chips" style="margin-top:10px">
+      <span class="chip">📱 ${o.format||''}</span>
+      <span class="chip">🔗 ${o.platform||''}</span>
+      <span class="chip">⏱ ~${o.window_h||'?'}h</span>
+    </div>
+    <div class="concept-section">
+      <div class="concept-lbl">Justificação estratégica</div>
+      <div class="concept-text">${o.why||''}</div>
+    </div>`:
+  o.score>=40&&mode==='compact'?`<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-top:8px">${o.concept||''}</div>`:'';
+
+  return `<div class="opp-card ${cls}">
+    <div class="opp-header">
+      <div>
+        <div class="opp-meta">${BRANDS[o.brandKey].name} · ${t} · ${o.news?.source||''}</div>
+        <div class="opp-event">${o.news?.title||''}</div>
+      </div>
+      <div class="score-badge sb-${sc}">${o.score}/100</div>
+    </div>
+    <div class="verdict-row ${vc}">${vt} — ${o.reason||''}</div>
+    ${bars}
+    ${creative}
+  </div>`;
+}
+
+function sb(label,val,max){
+  const pct=Math.round((val/max)*100);
+  const color=val/max>=.65?'#4ade80':val/max>=.45?'#fbbf24':'#f87171';
+  return `<div class="sbar-row">
+    <span class="sbar-lbl">${label}</span>
+    <div class="sbar-track"><div class="sbar-fill" style="width:${pct}%;background:${color}"></div></div>
+    <span class="sbar-num">${val}/${max}</span>
+  </div>`;
+}
+
+// ════════════════════════════════════════
+// RENDER — EMAIL LIST
+// ════════════════════════════════════════
+function renderEmailList(){
+  const el=document.getElementById('email-list');
+  if(!state.allEmails.length){el.innerHTML='<div class="empty"><span class="empty-icon">✉</span>Ainda sem emails.<br>Os emails são gerados automaticamente após cada ciclo.</div>';return;}
+
+  el.innerHTML=state.allEmails.map((e,i)=>{
+    const pgo=e.priority||[];
+    const pwait=e.consider||[];
+    const disc=[];
+
+    let body='';
+    if(pgo.length){
+      body+=`<div class="email-sec-lbl">🔴 Prioritárias (${pgo.length})</div>`;
+      pgo.forEach(o=>{
+        body+=`<div class="email-opp">
+          <div class="eo-brand">${o.brand}</div>
+          <div class="eo-event">${o.event}</div>
+          <div class="eo-score">Score: ${o.score}/100 · ~${o.window_h}h · ${o.format} · ${o.platform} · ${o.source}</div>
+          <div class="eo-concept">${o.concept}</div>
+          <div style="font-size:11px;color:var(--text3);margin:5px 0 3px;font-weight:700">Copy sugerido</div>
+          <div class="eo-copy">"${o.copy}"</div>
+          <div class="eo-why">${o.why}</div>
+        </div>`;
+      });
+    }
+    if(pwait.length){
+      if(pgo.length) body+='<hr class="ediv">';
+      body+=`<div class="email-sec-lbl">🟡 Para consideração (${pwait.length})</div>`;
+      pwait.forEach(o=>{
+        body+=`<div class="email-opp mid">
+          <div class="eo-brand">${o.brand}</div>
+          <div class="eo-event">${o.event}</div>
+          <div class="eo-score">Score: ${o.score}/100 · ~${o.window_h}h</div>
+          <div class="eo-concept">${o.concept}</div>
+          <div class="eo-copy">"${o.copy}"</div>
+        </div>`;
+      });
+    }
+
+    return `<div style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:11px;color:var(--text3)">Ciclo #${e.cycleNum} · ${e.time} de ${e.date}</div>
+        <button class="btn-sec" style="font-size:11px;padding:5px 10px" onclick="copyEmailText(${i})">Copiar</button>
+      </div>
+      <div class="email-wrap" id="email-${i}">
+        <div class="email-head">
+          <div class="email-subject">${e.subject}</div>
+          <div class="email-from">orbit@triber.agency · ${e.time}</div>
+        </div>
+        <div class="email-body">${body}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copyEmailText(i){
+  const el=document.getElementById('email-'+i);
+  if(el) navigator.clipboard.writeText(el.innerText).then(()=>{
+    event.currentTarget.textContent='✓ Copiado';
+    setTimeout(()=>event.currentTarget.textContent='Copiar',2000);
+  });
+}
+
+// ════════════════════════════════════════
+// BADGES
+// ════════════════════════════════════════
+function updateBadges(){
+  const nb=document.getElementById('nb-new');
+  const nf=document.getElementById('nb-feed');
+  const n=state.allOpps.filter(o=>o.score>=70).length;
+  if(n>0){nb.style.display='inline';nb.textContent=n;nf.style.display='inline';nf.textContent=state.allOpps.length;}
+  else{nb.style.display='none';nf.style.display='none';}
+}
+
+// ════════════════════════════════════════
+// SIMULATOR (manual)
+// ════════════════════════════════════════
+function simSelectBrand(el){
+  document.querySelectorAll('#sim-pills .filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  state.simBrand=el.dataset.brand;
+}
+
+async function runSim(){
+  const title=document.getElementById('sim-ev').value.trim();
+  if(!title){alert('Introduz um evento.');return;}
+  const b=BRANDS[state.simBrand];
+  const ctx=document.getElementById('sim-ctx').value.trim();
+  const src=document.getElementById('sim-src').value.trim()||'Manual';
+  const urg=document.getElementById('sim-urg').value;
+  const btn=document.getElementById('sim-btn');
+  btn.disabled=true;btn.textContent='A analisar…';
+  document.getElementById('sim-result').innerHTML='<div class="loading"><div class="spin"></div><br>A analisar…</div>';
+  const fakeNews={title,summary:ctx||title,source:src,category:'manual',tone:'neutro',urgency:urg};
+  try{
+    const r=await analysePair(fakeNews,state.simBrand);
+    const opp={...r,news:fakeNews,brandKey:state.simBrand,ts:new Date()};
+    state.allOpps.unshift(opp);
+    saveHistory();
+    if(r.score>=40) state.totalOpps++;
+    updateStats();updateBadges();
+    document.getElementById('sim-result').innerHTML=renderOppCard(opp,'full');
+  }catch(e){
+    document.getElementById('sim-result').innerHTML=`<div class="loading" style="color:var(--red)">Erro: ${e.message}</div>`;
+  }
+  btn.disabled=false;btn.textContent='Analisar com IA →';
+}
+
+// ════════════════════════════════════════
+// ANALYTICS
+// ════════════════════════════════════════
+function renderAnalytics(){
+  const el=document.getElementById('analytics-content');
+  const all=state.allOpps;
+  if(!all.length){el.innerHTML='<div class="empty"><span class="empty-icon">◈</span>Corre ciclos para ver dados aqui.</div>';return;}
+
+  const total=all.length;
+  const avg=Math.round(all.reduce((a,b)=>a+b.score,0)/total);
+  const goR=Math.round((all.filter(o=>o.score>=70).length/total)*100);
+
+  const bins=[0,0,0,0,0];
+  all.forEach(o=>{if(o.score<40)bins[0]++;else if(o.score<55)bins[1]++;else if(o.score<70)bins[2]++;else if(o.score<85)bins[3]++;else bins[4]++;});
+  const maxB=Math.max(...bins,1);
+  const bColors=['#f87171','#fb923c','#fbbf24','#86efac','#4ade80'];
+  const bLabels=['<40','40–54','55–69','70–84','85+'];
+
+  const bCards=Object.keys(BRANDS).map(k=>{
+    const items=all.filter(o=>o.brandKey===k);
+    if(!items.length) return `<div class="perf-card"><div class="perf-name">${BRANDS[k].name.split(' ')[0]}</div><div class="perf-meta">Sem análises</div></div>`;
+    const a2=Math.round(items.reduce((a,b)=>a+b.score,0)/items.length);
+    const sc=a2>=70?'green':a2>=45?'amber':'red';
+    return `<div class="perf-card"><div class="perf-name">${BRANDS[k].name.split(' ')[0]}</div><div class="perf-avg" style="color:var(--${sc})">${a2}/100</div><div class="perf-meta">Go: ${items.filter(o=>o.score>=70).length}/${items.length} · Melhor: ${Math.max(...items.map(o=>o.score))}</div></div>`;
+  }).join('');
+
+  el.innerHTML=`
+    <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat"><div class="stat-lbl">Total analisadas</div><div class="stat-val">${total}</div></div>
+      <div class="stat"><div class="stat-lbl">Score médio</div><div class="stat-val">${avg}/100</div></div>
+      <div class="stat"><div class="stat-lbl">Taxa de aproveitamento</div><div class="stat-val green">${goR}%</div></div>
+    </div>
+    <div class="perf-grid">${bCards}</div>
+    <div class="card">
+      <div class="card-title">Distribuição de scores</div>
+      <div class="bar-chart">${bins.map((b,i)=>`<div class="bc-row"><span>${bLabels[i]}</span><div class="bc-track"><div class="bc-fill" style="width:${Math.round((b/maxB)*100)}%;background:${bColors[i]}"></div></div><span class="bc-val">${b}</span></div>`).join('')}</div>
+    </div>`;
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+function renderSimPills(){
+  const el=document.getElementById('sim-pills');
+  if(!el)return;
+  const keys=Object.keys(BRANDS);
+  el.innerHTML=keys.map((k,i)=>`<button class="filter-btn ${i===0?'active':''}" data-brand="${k}" onclick="simSelectBrand(this)">${BRANDS[k].name}</button>`).join('');
+  if(keys.length>0) state.simBrand=keys[0];
+}
+
+function renderBrandsList(){
+  const el=document.getElementById('brands-list');
+  if(!el)return;
+  const keys=Object.keys(BRANDS);
+  if(!keys.length){el.innerHTML='<div class="empty"><span class="empty-icon">◐</span>Sem marcas. Adiciona uma acima.</div>';return;}
+  const colorBg={amber:'rgba(251,191,36,.13)',green:'rgba(74,222,128,.12)',red:'rgba(248,113,113,.12)',blue:'rgba(96,165,250,.12)',purple:'rgba(192,132,252,.12)'};
+  const colorText={amber:'var(--amber)',green:'var(--green)',red:'var(--red)',blue:'var(--blue)',purple:'var(--purple)'};
+  el.innerHTML=keys.map(k=>{
+    const b=BRANDS[k];
+    const bg=colorBg[b.color]||colorBg.amber;
+    const tc=colorText[b.color]||colorText.amber;
+    const init=b.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    return `<div class="brand-card">
+      <div class="bc-header">
+        <div class="bc-avatar" style="background:${bg};color:${tc}">${init}</div>
+        <div style="flex:1">
+          <div class="bc-name">${b.name}</div>
+          <div class="bc-sector">${b.sector}${b.auto_profiled?' · <span style="color:var(--green);font-size:10px">● Auto-perfilado</span>':''}</div>
+        </div>
+        <button onclick="deleteBrand('${k}')" style="background:none;border:1px solid rgba(248,113,113,.3);color:var(--red);font-size:11px;padding:4px 10px;border-radius:var(--rsm);cursor:pointer;font-family:inherit">Apagar</button>
+      </div>
+      <div class="tag-row">${(b.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="bc-text">
+        <b style="color:var(--text2)">Tom:</b> ${b.tone||''}<br>
+        <b style="color:var(--text2)">Target:</b> ${b.target||''}<br>
+        <b style="color:var(--text2)">Autoridade em:</b> ${b.authority||''}<br>
+        <b style="color:var(--text2)">Nunca:</b> ${b.topics_no||''}
+      </div>
+      ${b.communication_style?`<div class="bc-text" style="margin-top:8px"><b style="color:var(--text2)">Estilo de comunicação:</b> ${b.communication_style}</div>`:''}
+      ${b.post_examples?`<div style="background:var(--bg3);border-left:2px solid var(--blue);padding:10px 14px;margin-top:10px;font-size:12px;color:var(--text2);line-height:1.8;font-style:italic">${b.post_examples.replace(/\n/g,'<br>')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+(function(){
+  renderBrandsList();
+  renderSimPills();
+  renderFeedFilters();
+  updateStats();
+  updateBadges();
+  if(state.allOpps.length>0){
+    renderMonitorResults();
+  }
+  const k=getKey();
+  if(!k){
+    setTimeout(()=>{
+      const banner=document.createElement('div');
+      banner.style.cssText='position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--r);padding:14px 18px;font-size:13px;color:var(--amber);z-index:100;max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,.5)';
+      banner.innerHTML='⚠ Configura a chave API em <b>Definições</b>. <button onclick="this.parentNode.remove();nav('settings',document.querySelectorAll('.nav-item')[6])" style="background:none;border:none;color:var(--amber);font-family:inherit;font-size:13px;cursor:pointer;text-decoration:underline;margin-left:6px">Ir →</button>';
+      document.body.appendChild(banner);
+    },800);
+  }
+})();
+</script>
+</body>
+</html>
