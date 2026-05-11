@@ -433,12 +433,13 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
   <div class="card">
     <div class="card-title">Chave API Anthropic</div>
     <div class="setting-row">
-      <label>Obrigatória para activar a IA. Guardada localmente no browser.</label>
+      <label>Obrigatória para activar a IA. Guardada localmente no browser, nunca partilhada.</label>
+      <div id="key-status" style="font-size:13px;margin:8px 0 10px"></div>
       <div class="input-row">
-        <input type="password" id="key-input" placeholder="sk-ant-api03-…">
+        <input type="password" id="key-input" placeholder="Cola aqui a nova chave sk-ant-api03-…">
         <button class="btn-sec" onclick="saveKey()">Guardar</button>
       </div>
-      <div id="key-status" style="font-size:12px;color:var(--text3);margin-top:6px"></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">A chave é guardada apenas no teu browser e nunca enviada para servidores externos além da Anthropic.</div>
     </div>
   </div>
 
@@ -589,16 +590,29 @@ function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 // ════════════════════════════════════════
 function nav(id,el){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
+  const panel=document.getElementById('panel-'+id);
+  if(panel) panel.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
+  if(el) el.classList.add('active');
   if(id==='analytics') renderAnalytics();
-  if(id==='feed') renderFeed();
+  if(id==='feed'){ renderFeedFilters(); renderFeed(); }
   if(id==='email') renderEmailList();
+  if(id==='brands') renderBrandsList();
+  if(id==='simulator') renderSimPills();
   if(id==='settings'){
     const k=getKey();
-    if(k) document.getElementById('key-input').value=k;
-    document.getElementById('key-status').textContent=k?'✓ Chave configurada.':'Sem chave configurada.';
+    const inp=document.getElementById('key-input');
+    const st=document.getElementById('key-status');
+    if(inp&&k) inp.value='';
+    if(st){
+      if(k){
+        st.innerHTML='✓ Chave API configurada <span style="color:var(--green)">●</span><br><span style="font-size:11px;color:var(--text3)">Usando: claude-sonnet-4-5 (Anthropic)</span>';
+        st.style.color='var(--text2)';
+      } else {
+        st.innerHTML='⚠ Sem chave configurada';
+        st.style.color='var(--amber)';
+      }
+    }
   }
 }
 
@@ -1014,6 +1028,12 @@ function renderMonitorResults(){
 // ════════════════════════════════════════
 // RENDER — FEED
 // ════════════════════════════════════════
+function renderFeedFilters(){
+  const el=document.getElementById('feed-brand-filters');
+  if(!el)return;
+  el.innerHTML=Object.keys(BRANDS).map(k=>`<button class="filter-btn" onclick="filterFeed('${k}',this)">${BRANDS[k].name.split(' ')[0]}</button>`).join('');
+}
+
 function renderFeed(){
   const f=state.currentFilter;
   let items=state.allOpps;
@@ -1320,14 +1340,17 @@ function renderBrandsList(){
     renderMonitorResults();
   }
   const k=getKey();
-  if(!k){
-    setTimeout(()=>{
-      const banner=document.createElement('div');
-      banner.style.cssText='position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--r);padding:14px 18px;font-size:13px;color:var(--amber);z-index:100;max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,.5)';
-      banner.innerHTML='⚠ Configura a chave API em <b>Definições</b>. <button onclick="this.parentNode.remove();nav('settings',document.querySelectorAll('.nav-item')[6])" style="background:none;border:none;color:var(--amber);font-family:inherit;font-size:13px;cursor:pointer;text-decoration:underline;margin-left:6px">Ir →</button>';
-      document.body.appendChild(banner);
-    },800);
+  // Show API key warning if not configured
+  function showApiBanner(){
+    if(document.getElementById('api-banner')) return;
+    const banner=document.createElement('div');
+    banner.id='api-banner';
+    banner.style.cssText='position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--aborder);border-radius:var(--r);padding:16px 20px;font-size:13px;color:var(--amber);z-index:100;max-width:320px;box-shadow:0 8px 40px rgba(0,0,0,.6);cursor:pointer;';
+    banner.innerHTML='⚠ <b>Chave API não configurada</b><br><span style="font-size:12px;color:var(--text2);display:block;margin-top:4px">Clica aqui para ir às Definições e activar a plataforma.</span>';
+    banner.onclick=()=>{banner.remove();nav('settings',document.querySelector('.nav-item:last-child'));};
+    document.body.appendChild(banner);
   }
+  if(!k){ setTimeout(showApiBanner, 800); }
 })();
 </script>
 </body>
