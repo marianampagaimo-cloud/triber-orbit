@@ -804,7 +804,7 @@ async function generateNews(){
     if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias PT','ok');}
   }catch(e){log('  ↳ Erro web search: '+e.message.substring(0,60),'err');}
 
-  await sleep(5000);
+  await sleep(8000);
 
   // Search 2: IA generates events/calendar without web search (cheap)
   try{
@@ -813,7 +813,7 @@ async function generateNews(){
     if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' eventos/efemérides','ok');}
   }catch(e){log('  ↳ Erro efemérides: '+e.message.substring(0,60),'err');}
 
-  await sleep(3000);
+  await sleep(8000);
 
   // Search 3: IA generates trending cultural topics (cheap, no web search)
   try{
