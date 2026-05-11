@@ -407,6 +407,13 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
       <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Website ou Instagram (opcional)</label>
       <input type="text" id="new-brand-url" placeholder="Ex: instagram.com/superbock ou superbock.pt" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none">
     </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Brand on a Page (PDF ou Word) — opcional mas recomendado</label>
+      <div id="brand-file-drop" onclick="document.getElementById('brand-file-input').click()" style="border:1px dashed var(--border);border-radius:var(--rsm);padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;background:var(--bg3)">
+        <div style="font-size:13px;color:var(--text2)" id="brand-file-label">📄 Clica para carregar PDF ou Word</div>
+      </div>
+      <input type="file" id="brand-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleBrandFile(this)">
+    </div>
     <div style="margin-bottom:14px">
       <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Notas adicionais (opcional)</label>
       <textarea id="new-brand-notes" placeholder="Qualquer contexto relevante que queiras passar à IA…" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none;resize:vertical;min-height:64px"></textarea>
@@ -947,6 +954,26 @@ async function analysePair(news,brandKey){
 // ════════════════════════════════════════
 // BRAND ONBOARDING
 // ════════════════════════════════════════
+let brandFileContent = '';
+
+function handleBrandFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  const label = document.getElementById('brand-file-label');
+  label.textContent = '⏳ A ler ficheiro…';
+  const reader = new FileReader();
+  reader.onload = function(e){
+    brandFileContent = e.target.result;
+    label.textContent = '✓ ' + file.name + ' carregado';
+    document.getElementById('brand-file-drop').style.borderColor = 'var(--green)';
+  };
+  if(file.name.endsWith('.pdf')){
+    reader.readAsDataURL(file);
+  } else {
+    reader.readAsText(file);
+  }
+}
+
 async function addBrand(){
   const name=document.getElementById('new-brand-name')?.value.trim();
   if(!name){alert('Introduz o nome da marca.');return;}
@@ -962,8 +989,9 @@ async function addBrand(){
   let mi=0; const st=setInterval(()=>{if(mi<msgs.length&&status){status.textContent=msgs[mi++];}},2000);
   try{
     const r=await claude(`Analisa a comunicação da marca "${name}" ${sector?'('+sector+')':''} ${url?'em '+url:''}.
-${notes?'Contexto: '+notes:''}
-Com base no que sabes sobre esta marca, constrói um perfil de comunicação completo e detalhado. APENAS JSON:
+${notes?'Contexto adicional: '+notes:''}
+${brandFileContent&&!brandFileContent.startsWith('data:')?'DOCUMENTO BRAND ON A PAGE:\n'+brandFileContent.substring(0,3000):''}
+Com base em toda esta informação, constrói um perfil de comunicação completo e detalhado. APENAS JSON:
 {"name":"${name}","sector":"<setor>","positioning":"<posicionamento 1-2 frases>","personality":"<5 adjetivos>","tone":"<tom de voz detalhado>","values":"<valores, vírgulas>","target":"<target demográfico e psicográfico>","topics_yes":"<temas com autoridade>","topics_no":"<temas a evitar SEMPRE>","authority":"<áreas com credibilidade RTM>","communication_style":"<estilo detalhado: comprimento, emojis, estrutura, frequência, registo>","post_examples":"<4 exemplos simulados de posts no tom real desta marca, separados por \\n>","tags":["<tag1>","<tag2>","<tag3>","<tag4>","<tag5>"],"color":"<amber|green|red|blue|purple>"}`,1400,true);
     clearInterval(st);
     const key='brand_'+name.toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,15)+'_'+Date.now().toString().slice(-4);
