@@ -271,7 +271,7 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
   <div class="sidebar-footer">
     <div class="sf-status"><div class="sf-dot" id="sf-dot"></div><span id="sf-text">Inativo</span></div>
     <div class="sf-timer" id="sf-timer">Último ciclo: —</div>
-    <div style="font-size:11px;color:var(--text3);margin-top:4px">Triber Agency · v1.0</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px">Triber Agency · v6.0</div>
   </div>
 </aside>
 
@@ -407,13 +407,6 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
       <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Website ou Instagram (opcional)</label>
       <input type="text" id="new-brand-url" placeholder="Ex: instagram.com/superbock ou superbock.pt" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none">
     </div>
-    <div style="margin-bottom:12px">
-      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Brand on a Page (PDF ou Word) — opcional mas recomendado</label>
-      <div id="brand-file-drop" onclick="document.getElementById('brand-file-input').click()" style="border:1px dashed var(--border);border-radius:var(--rsm);padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;background:var(--bg3)">
-        <div style="font-size:13px;color:var(--text2)" id="brand-file-label">📄 Clica para carregar PDF ou Word</div>
-      </div>
-      <input type="file" id="brand-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleBrandFile(this)">
-    </div>
     <div style="margin-bottom:14px">
       <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Notas adicionais (opcional)</label>
       <textarea id="new-brand-notes" placeholder="Qualquer contexto relevante que queiras passar à IA…" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none;resize:vertical;min-height:64px"></textarea>
@@ -478,7 +471,7 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
   <div class="card">
     <div class="card-title">Sobre o Triber Orbit</div>
     <div style="font-size:13px;color:var(--text2);line-height:1.8">
-      <b style="color:var(--text)">Versão 1.0</b> — Desenvolvido no âmbito do estágio na Triber Agency.<br>
+      <b style="color:var(--text)">Versão 6.0</b> — Desenvolvido no âmbito do estágio na Triber Agency.<br>
       Motor de IA: Claude Sonnet (Anthropic API)<br>
       Marcas: Adamus Gin · Água do Arieiro · Candycat<br>
       <em style="color:var(--text3)">"Transformar o Real-Time Marketing de uma reação intuitiva numa decisão estratégica."</em>
@@ -496,6 +489,7 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
 function saveBrands(){try{localStorage.setItem('orbit_brands_v3',JSON.stringify(BRANDS));}catch(e){}}
 function loadStoredBrands(){try{const s=localStorage.getItem('orbit_brands_v3');return s?JSON.parse(s):null;}catch(e){return null;}}
 
+localStorage.removeItem('orbit_brands_v3');
 const BRANDS = loadStoredBrands() || {
   adamus:{
     name:'Adamus Gin',color:'amber',
@@ -508,10 +502,7 @@ const BRANDS = loadStoredBrands() || {
     topics_yes:'Gastronomia premium e alta cozinha, design e estética, experiências sensoriais, viagens de luxo, celebração entre amigos, conquistas e prémios, lifestyle de sucesso, sustentabilidade e bio, momentos de partilha em ambientes sofisticados.',
     topics_no:'Política, religião, temas polarizantes, futebol, show off e superficialidade, massas e produtos para todos, arrogância e vaidade, festas barulhentas.',
     authority:'Gastronomia premium, cocktails artesanais e gin craft, eventos gastronómicos, design de produto e embalagem, lifestyle de luxo sustentável, experiências sensoriais únicas.',
-    aspirational_brands:'Louis Vuitton (exclusiva, elegante, reconhecida por pessoas de bom gosto), Tesla (minimalismo, design, experiência, notado mas sem arrogância)',
-    language_do:'obrigado, tu (redes sociais), Até breve!, Thank you, Hello [nome próprio], Until next time',
-    language_dont:'agradecido, grato, você, o senhor, Com os melhores cumprimentos (redes sociais), Our sincere appreciation',
-    communication_style:'Posts curtos e elegantes, frases minimalistas e impactantes. Bilingue PT e EN. Raramente usa emojis — quando usa são discretos. Nunca é promocional. Tom de quem partilha algo especial com um círculo restrito. Fotografia de produto sofisticada.',
+    communication_style:'Posts curtos e elegantes, frases minimalistas e impactantes. Bilingue PT e EN. Raramente usa emojis — quando usa são discretos. Nunca é promocional. Tom de quem partilha algo especial com um círculo restrito.',
     post_examples:'• "Some moments deserve more than ordinary."\n• "Crafted for those who know the difference."\n• "A Bairrada. O resto, descobre tu."\n• "Not for everyone. Exactly as intended."\n• "Quatro gerações a aperfeiçoar o sublime."',
     tags:['Elegância','Exclusividade','Sustentabilidade','Celebração','Viagens','Super-premium']
   },
@@ -522,9 +513,9 @@ const BRANDS = loadStoredBrands() || {
     personality:'Leal, cuidadosa, saudável, inspiradora, empática, culta, moderna, curiosa.',
     tone:'Culto, curioso, empático, descontraído mas com substância. Próximo sem ser informal. Nunca triste, nunca pesado.',
     values:'Lealdade, Respeito pela História, Modernidade, Empatia, Curiosidade, Cultura, Saúde',
-    target:'Jovens adultos urbanos 25-40 com estilo de vida saudável. Preocupados com cultura, bem-estar e descoberta. Hipsters da música alternativa e das artes.',
+    target:'Jovens adultos urbanos 25-40 com estilo de vida saudável. Preocupados com cultura, bem-estar e descoberta. Apreciam música alternativa, artes e gastronomia.',
     topics_yes:'História portuguesa e tradição, vida saudável e bem-estar, momentos de pausa e relax, curiosidade e descoberta, gastronomia portuguesa, cultura e arte, hidratação consciente.',
-    topics_no:'Política, religião, futebol nacional (excepto feitos locais), sexo, morte, doenças, temas tristes ou pesados.',
+    topics_no:'Política, religião, futebol nacional, sexo, morte, doenças, temas tristes ou pesados.',
     authority:'Vida saudável e hidratação, cultura gastronómica portuguesa, momentos de pausa, descoberta de sabores, tradição com modernidade, história de Caldas da Rainha.',
     communication_style:'Posts com pergunta ou reflexão curiosa. Tom de descoberta e admiração. Emojis com moderação — 💧🌿✨. Partilha factos históricos interessantes. Comprimento médio. Sempre positivo, nunca pesado.',
     post_examples:'• "Sabia que em 1909 a Rainha D. Leonor já sabia o que é bom? 💧 Algumas descobertas duram séculos."\n• "Pausa. Respira. Hidrata. Repete. 🌿"\n• "A melhor versão de ti começa por dentro."\n• "Caldas da Rainha tem mais história do que imaginas. E mais sabor também."',
@@ -541,7 +532,7 @@ const BRANDS = loadStoredBrands() || {
     topics_yes:'Momentos de partilha com família e amigas, qualidade e sabor, épocas festivas (Natal, Páscoa, Dia da Mãe), pequenos prazeres do dia-a-dia, presentes com significado, celebrações familiares, self-care e mimos.',
     topics_no:'Dietas, açúcar, diabetes, calorias, futebol, política, religião, sexo, morte, temas tristes ou pesados.',
     authority:'Momentos festivos e épocas especiais, Natal e Páscoa, presentes para oferecer, celebrações familiares, pequenas indulgências diárias, chocolates como expressão de afecto.',
-    communication_style:'Tom quente, próximo e feminino. Emojis generosos e expressivos — 🍫🎁💕✨🌸💝. Frases que evocam emoções e memórias afectivas. Foca sempre nas pessoas e nos momentos, não no produto. Usa perguntas retóricas. Hashtags temáticas. Comprimento médio-longo.',
+    communication_style:'Tom quente, próximo e feminino. Emojis generosos e expressivos — 🍫🎁💕✨🌸💝. Frases que evocam emoções e memórias afectivas. Foca sempre nas pessoas e nos momentos, não no produto. Usa perguntas retóricas. Hashtags temáticas.',
     post_examples:'• "Porque os melhores momentos merecem ser saboreados com calma. 🍫💕"\n• "Para as tuas pessoas favoritas, os chocolates favoritos. 🎁"\n• "Há momentos que só o chocolate consegue descrever. ✨"\n• "A vida é curta. Come o chocolate. 🍫 #CandycatChocolats #MomentosQueImportam"\n• "Partilhar é a melhor receita. 💝 Qual é o teu momento Candycat?"',
     tags:['Partilha','Família','Prazer','Elegância','Festas','Presentes']
   }
@@ -794,25 +785,25 @@ async function runCycle(){
 async function generateNews(){
   const today=new Date().toLocaleDateString('pt-PT');
   const dayOfWeek=new Date().toLocaleDateString('pt-PT',{weekday:'long'});
-  log('Camada 1 — A recolher notícias…','layer');
+  log('Camada 1 — A recolher notícias e tendências…','layer');
   const allNews=[];
 
-  // Search 1: ONE real web search for today's PT news (light prompt to save tokens)
+  // Batch 1: PT news + cultural events (no web search - avoids rate limits)
   try{
-    log('  ↳ Pesquisa web: notícias PT hoje…');
-    const r1=await claude(`Gera 8 notícias e acontecimentos realistas de hoje (${today}) em Portugal. Foca em cultura, gastronomia, lifestyle, música, arte, eventos positivos. Nada de crimes, política ou saúde pública. APENAS JSON: {"news":[{"title":"<título realista>","summary":"<1 frase>","source":"<Público|NiT|Time Out|Observador>","category":"<categoria>","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,700,false);
-    if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias PT','ok');}
-  }catch(e){log('  ↳ Erro web search: '+e.message.substring(0,60),'err');}
+    log('  ↳ A gerar notícias e eventos do dia…');
+    const r1=await claude(`Hoje é ${dayOfWeek}, ${today}. Gera 10 notícias/eventos/tendências realistas e variados relevantes para Portugal. Mistura: gastronomia, cultura, lifestyle, música, arte, moda, viagens, bem-estar, sustentabilidade, momentos de celebração, efemérides da semana. Nada negativo, nada político, nada de crimes. APENAS JSON: {"news":[{"title":"<título realista em português>","summary":"<1 frase descritiva>","source":"<Público|NiT|Time Out Lisboa|Observador|CNN Portugal|Sapo Lifestyle>","category":"<gastronomia|cultura|lifestyle|música|arte|viagens|bem-estar|tendência>","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,900,false);
+    if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias/eventos gerados','ok');}
+  }catch(e){log('  ↳ Erro batch 1: '+e.message.substring(0,80),'err');}
 
-  await sleep(10000);
+  await sleep(4000);
 
-  // Search 2: generate events and trends without web search
+  // Batch 2: brand-relevant trends
   try{
-    log('  ↳ A gerar efemérides e tendências…');
-    const brandCtx=Object.values(BRANDS).map(b=>b.name).join(', ');
-    const r2=await claude(`Hoje é ${dayOfWeek}, ${today}. Gera 8 eventos, efemérides, tendências culturais e acontecimentos desta semana relevantes para marcas como ${brandCtx}. Foca em cultura, gastronomia, lifestyle, música, arte, momentos de celebração — nada negativo. APENAS JSON: {"news":[{"title":"<título>","summary":"<1 frase>","source":"<fonte>","category":"<categoria>","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,700,false);
-    if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' eventos/tendências','ok');}
-  }catch(e){log('  ↳ Erro eventos: '+e.message.substring(0,60),'err');}
+    log('  ↳ A gerar tendências relevantes para as marcas…');
+    const brandCtx=Object.values(BRANDS).map(b=>b.name+' ('+b.sector+')').join(', ');
+    const r2=await claude(`Gera 6 tendências culturais, movimentos ou conversas actuais (${today}) especialmente relevantes para estas marcas: ${brandCtx}. Foca em oportunidades de RTM genuínas — momentos culturais, efemérides, lançamentos, eventos que estas marcas possam comentar criativamente. APENAS JSON: {"news":[{"title":"<tendência ou evento>","summary":"<1 frase>","source":"<Instagram PT|Twitter PT|Tendência cultural|Efeméride>","category":"tendência","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,700,false);
+    if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' tendências geradas','ok');}
+  }catch(e){log('  ↳ Erro batch 2: '+e.message.substring(0,80),'err');}
 
   // Deduplicate
   const seen=new Set();
@@ -958,11 +949,7 @@ function handleBrandFile(input){
     label.textContent = '✓ ' + file.name + ' carregado';
     document.getElementById('brand-file-drop').style.borderColor = 'var(--green)';
   };
-  if(file.name.endsWith('.pdf')){
-    reader.readAsDataURL(file);
-  } else {
-    reader.readAsText(file);
-  }
+  reader.readAsText(file);
 }
 
 async function addBrand(){
@@ -980,9 +967,8 @@ async function addBrand(){
   let mi=0; const st=setInterval(()=>{if(mi<msgs.length&&status){status.textContent=msgs[mi++];}},2000);
   try{
     const r=await claude(`Analisa a comunicação da marca "${name}" ${sector?'('+sector+')':''} ${url?'em '+url:''}.
-${notes?'Contexto adicional: '+notes:''}
-${brandFileContent&&!brandFileContent.startsWith('data:')?'DOCUMENTO BRAND ON A PAGE:\n'+brandFileContent.substring(0,8000):''}
-Com base em toda esta informação, constrói um perfil de comunicação completo e detalhado. APENAS JSON:
+${notes?'Contexto: '+notes:''}
+Com base no que sabes sobre esta marca, constrói um perfil de comunicação completo e detalhado. APENAS JSON:
 {"name":"${name}","sector":"<setor>","positioning":"<posicionamento 1-2 frases>","personality":"<5 adjetivos>","tone":"<tom de voz detalhado>","values":"<valores, vírgulas>","target":"<target demográfico e psicográfico>","topics_yes":"<temas com autoridade>","topics_no":"<temas a evitar SEMPRE>","authority":"<áreas com credibilidade RTM>","communication_style":"<estilo detalhado: comprimento, emojis, estrutura, frequência, registo>","post_examples":"<4 exemplos simulados de posts no tom real desta marca, separados por \\n>","tags":["<tag1>","<tag2>","<tag3>","<tag4>","<tag5>"],"color":"<amber|green|red|blue|purple>"}`,1400,true);
     clearInterval(st);
     const key='brand_'+name.toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,15)+'_'+Date.now().toString().slice(-4);
