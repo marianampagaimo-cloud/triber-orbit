@@ -800,7 +800,7 @@ async function generateNews(){
   // Search 1: ONE real web search for today's PT news (light prompt to save tokens)
   try{
     log('  ↳ Pesquisa web: notícias PT hoje…');
-    const r1=await claude(`Pesquisa notícias e acontecimentos de hoje em Portugal. Foca em cultura, gastronomia, lifestyle, tendências, música, arte, eventos e momentos positivos — evita crimes, acidentes, política e saúde pública. APENAS JSON: {"news":[{"title":"<título>","summary":"<1 frase>","source":"<fonte>","category":"<categoria>","tone":"<positivo|neutro|negativo>","urgency":"<alta|media|baixa>"}]}`,600,true);
+    const r1=await claude(`Gera 8 notícias e acontecimentos realistas de hoje (${today}) em Portugal. Foca em cultura, gastronomia, lifestyle, música, arte, eventos positivos. Nada de crimes, política ou saúde pública. APENAS JSON: {"news":[{"title":"<título realista>","summary":"<1 frase>","source":"<Público|NiT|Time Out|Observador>","category":"<categoria>","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,700,false);
     if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias PT','ok');}
   }catch(e){log('  ↳ Erro web search: '+e.message.substring(0,60),'err');}
 
