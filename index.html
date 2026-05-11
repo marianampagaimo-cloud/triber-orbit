@@ -990,7 +990,7 @@ async function addBrand(){
   try{
     const r=await claude(`Analisa a comunicação da marca "${name}" ${sector?'('+sector+')':''} ${url?'em '+url:''}.
 ${notes?'Contexto adicional: '+notes:''}
-${brandFileContent&&!brandFileContent.startsWith('data:')?'DOCUMENTO BRAND ON A PAGE:\n'+brandFileContent.substring(0,3000):''}
+${brandFileContent&&!brandFileContent.startsWith('data:')?'DOCUMENTO BRAND ON A PAGE:\n'+brandFileContent.substring(0,8000):''}
 Com base em toda esta informação, constrói um perfil de comunicação completo e detalhado. APENAS JSON:
 {"name":"${name}","sector":"<setor>","positioning":"<posicionamento 1-2 frases>","personality":"<5 adjetivos>","tone":"<tom de voz detalhado>","values":"<valores, vírgulas>","target":"<target demográfico e psicográfico>","topics_yes":"<temas com autoridade>","topics_no":"<temas a evitar SEMPRE>","authority":"<áreas com credibilidade RTM>","communication_style":"<estilo detalhado: comprimento, emojis, estrutura, frequência, registo>","post_examples":"<4 exemplos simulados de posts no tom real desta marca, separados por \\n>","tags":["<tag1>","<tag2>","<tag3>","<tag4>","<tag5>"],"color":"<amber|green|red|blue|purple>"}`,1400,true);
     clearInterval(st);
