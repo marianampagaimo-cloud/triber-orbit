@@ -791,7 +791,7 @@ async function generateNews(){
   // Batch 1: PT news + cultural events (no web search - avoids rate limits)
   try{
     log('  ↳ A gerar notícias e eventos do dia…');
-    const r1=await claude(`Hoje é ${dayOfWeek}, ${today}. Gera 10 notícias/eventos/tendências realistas e variados relevantes para Portugal. Mistura: gastronomia, cultura, lifestyle, música, arte, moda, viagens, bem-estar, sustentabilidade, momentos de celebração, efemérides da semana. Nada negativo, nada político, nada de crimes. APENAS JSON: {"news":[{"title":"<título realista em português>","summary":"<1 frase descritiva>","source":"<Público|NiT|Time Out Lisboa|Observador|CNN Portugal|Sapo Lifestyle>","category":"<gastronomia|cultura|lifestyle|música|arte|viagens|bem-estar|tendência>","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,900,false);
+    const r1=await claude(`Hoje é ${dayOfWeek}, ${today}. Gera 6 notícias/eventos realistas sobre Portugal. Temas: gastronomia, cultura, lifestyle, música, arte, bem-estar. Nada negativo. JSON CURTO: {"news":[{"title":"<título>","summary":"<frase curta>","source":"<NiT|Time Out|Público>","category":"<tema>","tone":"positivo","urgency":"media"}]}`,1200,false);
     if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias/eventos gerados','ok');}
   }catch(e){log('  ↳ Erro batch 1: '+e.message.substring(0,80),'err');}
 
