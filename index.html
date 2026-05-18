@@ -629,9 +629,7 @@ function nav(id,el){
   if(id==='simulator') renderSimPills();
   if(id==='settings'){
     const k=getKey();
-    const inp=document.getElementById('key-input');
     const st=document.getElementById('key-status');
-    if(inp&&k) inp.value='';
     if(st){
       if(k){
         st.innerHTML='✓ Chave API configurada <span style="color:var(--green)">●</span><br><span style="font-size:11px;color:var(--text3)">Usando: claude-sonnet-4-5 (Anthropic)</span>';
