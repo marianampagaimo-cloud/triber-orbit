@@ -820,13 +820,7 @@ async function generateNews(){
     if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias geradas','ok');}
   }catch(e){log('  ↳ Erro batch 1: '+e.message.substring(0,80),'err');}
 
-  await sleep(12000);
-
-  try{
-    log('  ↳ A identificar oportunidades RTM para as marcas…');
-    const r2=await claude('Gera 5 efemérides ou tendências culturais de hoje ('+today+') relevantes para marcas de bebidas premium, água saudável ou chocolates. APENAS JSON curto: {"news":[{"title":"<título>","summary":"<frase>","source":"Tendência","category":"tendência","country":"pt","tone":"positivo","urgency":"media"}]}',600,false);
-    if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' oportunidades RTM','ok');}
-  }catch(e){log('  ↳ Erro batch 2: '+e.message.substring(0,80),'err');}
+  
 
   const seen=new Set();
   const deduped=allNews.filter(n=>{
