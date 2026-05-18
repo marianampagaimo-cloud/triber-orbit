@@ -1076,6 +1076,16 @@ Com base no que sabes sobre esta marca, constrói um perfil de comunicação com
     BRANDS[key]={...r,key,auto_profiled:true,profiled_at:new Date().toISOString()};
     saveBrands();
     ['new-brand-name','new-brand-sector','new-brand-url','new-brand-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    brandFileContent='';
+    const lbl=document.getElementById('brand-file-label');
+    if(lbl)lbl.textContent='Clica para carregar ou arrasta aqui';
+    const drop=document.getElementById('brand-file-drop');
+    if(drop)drop.style.borderColor='var(--border)';
+    const finp=document.getElementById('brand-file-input');
+    if(finp)finp.value='';
+    document.getElementById('country-flag').textContent='🇵🇹';
+    document.getElementById('country-name').textContent='Portugal';
+    document.getElementById('new-brand-country').value='pt';
     if(status)status.style.display='none';
     btn.disabled=false; btn.textContent='Construir perfil com IA →';
     renderBrandsList(); renderSimPills(); updateBadges();
