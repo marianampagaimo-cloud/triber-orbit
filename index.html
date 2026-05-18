@@ -404,6 +404,22 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
       </div>
     </div>
     <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">País de foco</label>
+      <div id="country-selector" style="position:relative;display:inline-block;width:100%">
+        <div id="country-selected" onclick="toggleCountryDropdown()" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:8px 12px;cursor:pointer;font-size:13px;color:var(--text);user-select:none;">
+          <span id="country-flag">🇵🇹</span>
+          <span id="country-name">Portugal</span>
+          <span style="margin-left:auto;color:var(--text3);font-size:11px">▾</span>
+        </div>
+        <input type="hidden" id="new-brand-country" value="pt">
+        <div id="country-dropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rsm);z-index:100;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4)" id="country-dropdown-list">
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="display:none">
+    </div>
+    <div style="margin-bottom:12px">
       <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Website ou Instagram (opcional)</label>
       <input type="text" id="new-brand-url" placeholder="Ex: instagram.com/superbock ou superbock.pt" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none">
     </div>
@@ -492,7 +508,7 @@ function loadStoredBrands(){try{const s=localStorage.getItem('orbit_brands_v3');
 localStorage.removeItem('orbit_brands_v3');
 const BRANDS = loadStoredBrands() || {
   adamus:{
-    name:'Adamus Gin',color:'amber',
+    name:'Adamus Gin',color:'amber',country:'pt',country_flag:'🇵🇹',country_name:'Portugal',
     sector:'Espirituosas super-premium, Destilaria Levira, Bairrada',
     positioning:'Sucesso e celebração. Uma experiência sublime que afeta todos os sentidos — da garrafa ao aroma ao palato. Quem descobre quer partilhar, como quem encontra um diamante escondido.',
     personality:'Elegante, autêntica, independente, inteligente, sofisticada, misteriosa mas simpática quando conhecida.',
@@ -507,7 +523,7 @@ const BRANDS = loadStoredBrands() || {
     tags:['Elegância','Exclusividade','Sustentabilidade','Celebração','Viagens','Super-premium']
   },
   arieiro:{
-    name:'Água do Arieiro',color:'green',
+    name:'Água do Arieiro',color:'green',country:'pt',country_flag:'🇵🇹',country_name:'Portugal',
     sector:'Água gaseificada histórica, Caldas da Rainha desde 1909',
     positioning:'Descoberta. Como a Rainha D. Leonor descobriu as propriedades das águas de Caldas da Rainha, o consumidor vai descobrir a Água do Arieiro — algo especial que já existia mas ainda não conhecia.',
     personality:'Leal, cuidadosa, saudável, inspiradora, empática, culta, moderna, curiosa.',
@@ -522,7 +538,7 @@ const BRANDS = loadStoredBrands() || {
     tags:['Descoberta','Saúde','Tradição','Modernidade','Cultura','História']
   },
   candycat:{
-    name:'Candycat Chocolats',color:'red',
+    name:'Candycat Chocolats',color:'red',country:'pt',country_flag:'🇵🇹',country_name:'Portugal',
     sector:'Confeitaria premium acessível, Portugal desde 1995',
     positioning:'Desfrutar. A marca de confeitaria pensada para os gostos do consumidor português — qualidade e elegância a preços competitivos, para os momentos que merecem ser celebrados.',
     personality:'Doce, suave, versátil, elegante, jovem mas madura, feminina, generosa.',
@@ -788,24 +804,25 @@ async function generateNews(){
   log('Camada 1 — A recolher notícias e tendências…','layer');
   const allNews=[];
 
-  // Batch 1: PT news + cultural events (no web search - avoids rate limits)
+  const brandList=Object.values(BRANDS);
+  const countries=[...new Set(brandList.map(b=>b.country||'pt'))];
+  const countryNames=countries.map(c=>{const cd=COUNTRIES.find(x=>x.code===c);return cd?cd.flag+' '+cd.name:'Portugal';}).join(', ');
+  const brandCtx=brandList.map(b=>b.name+' ('+b.sector+', '+(b.country_name||'Portugal')+')').join(', ');
+
   try{
-    log('  ↳ A gerar notícias e eventos do dia…');
-    const r1=await claude(`Hoje é ${dayOfWeek}, ${today}. Gera 6 notícias/eventos realistas sobre Portugal. Temas: gastronomia, cultura, lifestyle, música, arte, bem-estar. Nada negativo. JSON CURTO: {"news":[{"title":"<título>","summary":"<frase curta>","source":"<NiT|Time Out|Público>","category":"<tema>","tone":"positivo","urgency":"media"}]}`,1200,false);
-    if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias/eventos gerados','ok');}
+    log('  ↳ A gerar notícias para: '+countryNames+'…');
+    const r1=await claude('Hoje é '+dayOfWeek+', '+today+'. Gera 8 notícias/eventos realistas e variados para estes mercados: '+countryNames+'. Temas: gastronomia, cultura, lifestyle, música, arte, moda, bem-estar, celebrações, efemérides. Nada negativo, nada político. Inclui eventos locais de cada país. JSON: {"news":[{"title":"<título realista>","summary":"<1 frase>","source":"<fonte local>","category":"<tema>","country":"<código: pt|es|br|gb|fr|de|us|int>","tone":"positivo","urgency":"<alta|media|baixa>"}]}',1200,false);
+    if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias geradas','ok');}
   }catch(e){log('  ↳ Erro batch 1: '+e.message.substring(0,80),'err');}
 
   await sleep(4000);
 
-  // Batch 2: brand-relevant trends
   try{
-    log('  ↳ A gerar tendências relevantes para as marcas…');
-    const brandCtx=Object.values(BRANDS).map(b=>b.name+' ('+b.sector+')').join(', ');
-    const r2=await claude(`Gera 6 tendências culturais, movimentos ou conversas actuais (${today}) especialmente relevantes para estas marcas: ${brandCtx}. Foca em oportunidades de RTM genuínas — momentos culturais, efemérides, lançamentos, eventos que estas marcas possam comentar criativamente. APENAS JSON: {"news":[{"title":"<tendência ou evento>","summary":"<1 frase>","source":"<Instagram PT|Twitter PT|Tendência cultural|Efeméride>","category":"tendência","tone":"positivo","urgency":"<alta|media|baixa>"}]}`,700,false);
-    if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' tendências geradas','ok');}
+    log('  ↳ A identificar oportunidades RTM para as marcas…');
+    const r2=await claude('Gera 6 tendências/momentos culturais actuais ('+today+') com potencial RTM para estas marcas: '+brandCtx+'. Cada tendência deve ser relevante para pelo menos uma marca. Foca em momentos únicos, efemérides, movimentos culturais. JSON: {"news":[{"title":"<tendência>","summary":"<1 frase>","source":"<fonte>","category":"tendência","country":"<código>","tone":"positivo","urgency":"<alta|media|baixa>"}]}',700,false);
+    if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' oportunidades RTM','ok');}
   }catch(e){log('  ↳ Erro batch 2: '+e.message.substring(0,80),'err');}
 
-  // Deduplicate
   const seen=new Set();
   const deduped=allNews.filter(n=>{
     const k=(n.title||'').toLowerCase().substring(0,35);
@@ -833,30 +850,35 @@ Evento: "${news.title}" | ${news.summary} | Cat: ${news.category} | Tom: ${news.
 async function layer3_filter(news,brandKey){
   const b=BRANDS[brandKey];
   const sig=brandKey==='adamus'?news.brand_signals?.premium_spirits:brandKey==='arieiro'?news.brand_signals?.healthy_water:news.brand_signals?.chocolate_gifting;
-  return claude(`Analisa se este evento tem potencial RTM para esta marca. Sê honesto mas não descortes tudo — se há um ângulo criativo genuíno, avança. APENAS JSON.
+  const brandCountry = b.country_name||'Portugal';
+  const newsCountry = news.country||'pt';
+  const countryMatch = !b.country||b.country==='int'||b.country===newsCountry||newsCountry==='int';
+  return claude(`Analisa se este evento tem potencial RTM para esta marca. APENAS JSON.
 
 Evento: "${news.title}" | ${news.summary||''}
-Potencial geral: ${news.rtm_potential||'?'} | Sinal para esta marca: ${sig||'?'}
-Hooks disponíveis: ${JSON.stringify(news.cultural_hooks||[])}
-Território emocional: ${news.emotional_territory||'?'}
+País do evento: ${news.country||'pt'} | País da marca: ${b.country||'pt'} (${brandCountry})
+Relevância geográfica: ${countryMatch?'COMPATÍVEL':'MERCADOS DIFERENTES — avalia se tem relevância cross-border'}
+Potencial RTM: ${news.rtm_potential||'?'} | Sinal para esta marca: ${sig||'?'}
+Hooks: ${JSON.stringify(news.cultural_hooks||[])}
 
 Marca: ${b.name} | Setor: ${b.sector}
 Posicionamento: ${b.positioning}
-Autoridade natural: ${b.authority}
-NUNCA fala de: ${b.topics_no}
-Tom: ${b.tone}
+Autoridade: ${b.authority}
+Sweet spots RTM: ${b.rtm_sweet_spots||''}
+NUNCA: ${b.topics_no}
 
-CRITÉRIOS para avançar (basta UM ser verdade):
+CRITÉRIOS para avançar (basta UM):
 - Há ligação genuína entre o evento e o universo da marca
-- A marca tem autoridade natural para reagir a este tema
+- A marca tem autoridade natural para reagir
 - Existe um hook criativo específico para esta marca
+- O evento é relevante para o mercado desta marca
 
-CRITÉRIOS para descartar (basta UM):
-- O evento está explicitamente na lista NUNCA
-- Associar-se causaria dano reputacional claro
-- Não há absolutamente nenhum ângulo possível
+CRITÉRIOS para descartar:
+- Evento explicitamente na lista NUNCA
+- Dano reputacional claro
+- Mercados completamente incompatíveis sem ângulo cross-border
 
-{"proceed":true|false,"reason":"<1 frase honesta>","potential_angle":"<ângulo específico se avança, vazio se não>","confidence":"<alto|medio|baixo>"}`,400);
+{"proceed":true|false,"reason":"<1 frase honesta>","potential_angle":"<ângulo específico se avança>","confidence":"<alto|medio|baixo>"}`,450);
 }
 
 async function layer4_creative(news,brandKey,filter){
@@ -936,6 +958,53 @@ async function analysePair(news,brandKey){
 // ════════════════════════════════════════
 // BRAND ONBOARDING
 // ════════════════════════════════════════
+const COUNTRIES=[
+  {code:'pt',flag:'🇵🇹',name:'Portugal'},
+  {code:'es',flag:'🇪🇸',name:'Espanha'},
+  {code:'br',flag:'🇧🇷',name:'Brasil'},
+  {code:'gb',flag:'🇬🇧',name:'Reino Unido'},
+  {code:'fr',flag:'🇫🇷',name:'França'},
+  {code:'de',flag:'🇩🇪',name:'Alemanha'},
+  {code:'us',flag:'🇺🇸',name:'EUA'},
+  {code:'int',flag:'🌍',name:'Internacional'},
+];
+
+function populateCountryDropdown(){
+  const d=document.getElementById('country-dropdown-list');
+  if(!d)return;
+  d.innerHTML=COUNTRIES.map(c=>'<div onclick="selectCountry(''+c.code+'',''+c.flag+'',''+c.name+'')" style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--text2)" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">'+c.flag+'&nbsp;'+c.name+'</div>').join('');
+}
+
+function toggleCountryDropdown(){
+  const d=document.getElementById('country-dropdown-list');
+  if(d)d.style.display=d.style.display==='none'?'block':'none';
+}
+
+function selectCountry(code,flag,name){
+  const inp=document.getElementById('new-brand-country');
+  const fl=document.getElementById('country-flag');
+  const nm=document.getElementById('country-name');
+  const d=document.getElementById('country-dropdown-list');
+  if(inp)inp.value=code;
+  if(fl)fl.textContent=flag;
+  if(nm)nm.textContent=name;
+  if(d)d.style.display='none';
+}
+
+document.addEventListener('click',function(e){
+  const sel=document.getElementById('country-selector');
+  if(sel&&!sel.contains(e.target)){
+    const d=document.getElementById('country-dropdown-list');
+    if(d)d.style.display='none';
+  }
+});
+
+function setBrandStatus(msg,color){
+  color=color||'var(--amber)';
+  const s=document.getElementById('add-brand-status');
+  if(s){s.style.display='block';s.style.color=color;s.innerHTML=msg;}
+}
+
 let brandFileContent = '';
 
 function handleBrandFile(input){
@@ -952,103 +1021,7 @@ function handleBrandFile(input){
   reader.readAsText(file);
 }
 
-function setBrandStatus(msg, color='var(--amber)'){
-  const s = document.getElementById('add-brand-status');
-  if(s){ s.style.display='block'; s.style.color=color; s.innerHTML=msg; }
-}
-
 async function addBrand(){
-  const name=document.getElementById('new-brand-name')?.value.trim();
-  if(!name){alert('Introduz o nome da marca.');return;}
-  if(!getKey()){alert('Configura a chave API primeiro.');return;}
-  const sector=document.getElementById('new-brand-sector')?.value.trim()||'';
-  const url=document.getElementById('new-brand-url')?.value.trim()||'';
-  const notes=document.getElementById('new-brand-notes')?.value.trim()||'';
-  const btn=document.getElementById('add-brand-btn');
-  btn.disabled=true; btn.textContent='A construir perfil…';
-
-  const docContext = brandFileContent ? brandFileContent.substring(0,8000) : '';
-  const brandBase = `Marca: "${name}" ${sector?'('+sector+')':''} ${url?'| '+url:''}${notes?'| Notas: '+notes:''}${docContext?'| DOCUMENTO BRAND ON A PAGE:\n'+docContext:''}`;
-
-  try{
-    // STEP 1 — Extract brand foundation
-    setBrandStatus('📄 Passo 1/5 — A ler e extrair informação do documento…');
-    await sleep(300);
-    const step1 = await claude(`Com base nesta informação de marca, extrai os dados fundamentais. APENAS JSON.
-${brandBase}
-{"name":"<nome oficial>","sector":"<setor>","mission":"<missão em 1 frase>","vision":"<visão em 1 frase>","values":"<valores separados por vírgulas>","positioning":"<posicionamento estratégico 1-2 frases>"}`, 600);
-
-    await sleep(2000);
-
-    // STEP 2 — Personality & tone deep analysis
-    setBrandStatus('🧠 Passo 2/5 — A analisar personalidade e tom de voz…');
-    const step2 = await claude(`Analisa em profundidade a personalidade e tom de voz desta marca. APENAS JSON.
-${brandBase}
-Missão: ${step1.mission||''} | Valores: ${step1.values||''}
-{"personality":"<5-7 adjetivos que descrevem a marca como pessoa>","tone":"<descrição detalhada do tom: como fala, registo, energia, o que nunca faz>","person_description":"<se a marca fosse uma pessoa, como seria? idade, estilo de vida, gostos>","aspirational_brands":"<marcas com que se compara ou aspira ser>","language_do":"<expressões, palavras, estruturas que usa>","language_dont":"<expressões e palavras que nunca usa>"}`, 700);
-
-    await sleep(2000);
-
-    // STEP 3 — Audience & authority mapping
-    setBrandStatus('🎯 Passo 3/5 — A mapear audiência e áreas de autoridade…');
-    const step3 = await claude(`Define a audiência e autoridade RTM desta marca. APENAS JSON.
-${brandBase}
-Posicionamento: ${step1.positioning||''}
-{"target":"<target primário: demográfico e psicográfico detalhado>","target_secondary":"<target secundário>","topics_yes":"<temas onde a marca tem autoridade e credibilidade para falar>","topics_no":"<temas que a marca NUNCA deve abordar — lista explícita>","authority":"<em que áreas específicas tem credibilidade para fazer RTM>","rtm_sweet_spots":"<tipos de eventos/momentos culturais onde esta marca brilha em RTM>"}`, 700);
-
-    await sleep(2000);
-
-    // STEP 4 — Communication style & real examples
-    setBrandStatus('✍️ Passo 4/5 — A gerar exemplos de posts no tom real da marca…');
-    const step4 = await claude(`Gera o estilo de comunicação e exemplos de posts reais para esta marca. APENAS JSON.
-Marca: ${step1.name||name} | Tom: ${step2.tone||''} | Target: ${step3.target||''} | Nunca: ${step3.topics_no||''}
-${docContext?'Documento original:\n'+docContext.substring(0,2000):''}
-{"communication_style":"<descrição muito detalhada: comprimento típico dos posts, uso de emojis (quais e frequência), estrutura, registo formal/informal, uso de perguntas, hashtags, call-to-action>","post_examples":"<5 exemplos de posts simulados no tom EXACTO desta marca — variados em tema e formato, separados por \\n>","tags":["<tag1>","<tag2>","<tag3>","<tag4>","<tag5>"],"color":"<amber|green|red|blue|purple>"}`, 900);
-
-    await sleep(2000);
-
-    // STEP 5 — Validate & consolidate
-    setBrandStatus('✅ Passo 5/5 — A validar e consolidar perfil…');
-    const finalProfile = {
-      name: step1.name||name,
-      sector: step1.sector||sector,
-      positioning: step1.positioning||'',
-      personality: step2.personality||'',
-      tone: step2.tone||'',
-      values: step1.values||'',
-      target: step3.target||'',
-      topics_yes: step3.topics_yes||'',
-      topics_no: step3.topics_no||'',
-      authority: step3.authority||'',
-      rtm_sweet_spots: step3.rtm_sweet_spots||'',
-      communication_style: step4.communication_style||'',
-      post_examples: step4.post_examples||'',
-      aspirational_brands: step2.aspirational_brands||'',
-      language_do: step2.language_do||'',
-      language_dont: step2.language_dont||'',
-      tags: step4.tags||[],
-      color: step4.color||'amber',
-      auto_profiled: true,
-      profiled_at: new Date().toISOString()
-    };
-
-    const key='brand_'+name.toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,15)+'_'+Date.now().toString().slice(-4);
-    BRANDS[key]={...finalProfile,key};
-    saveBrands();
-    brandFileContent='';
-    ['new-brand-name','new-brand-sector','new-brand-url','new-brand-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-    document.getElementById('brand-file-label').textContent='📄 Clica para carregar PDF ou Word';
-    document.getElementById('brand-file-drop').style.borderColor='var(--border)';
-    setBrandStatus('✓ Perfil de "'+finalProfile.name+'" criado com sucesso!','var(--green)');
-    setTimeout(()=>{const s=document.getElementById('add-brand-status');if(s)s.style.display='none';},4000);
-    btn.disabled=false; btn.textContent='Construir perfil com IA →';
-    renderBrandsList(); renderSimPills(); updateBadges();
-
-  }catch(e){
-    setBrandStatus('⚠ Erro: '+e.message,'var(--red)');
-    btn.disabled=false; btn.textContent='Construir perfil com IA →';
-  }
-}
   const name=document.getElementById('new-brand-name')?.value.trim();
   if(!name){alert('Introduz o nome da marca.');return;}
   if(!getKey()){alert('Configura a chave API primeiro.');return;}
@@ -1273,11 +1246,8 @@ function renderEmailList(){
           <div class="eo-event">${o.event}</div>
           <div class="eo-score">Score: ${o.score}/100 · ~${o.window_h}h · ${o.format} · ${o.platform} · ${o.source}</div>
           <div class="eo-concept">${o.concept}</div>
-          ${o.creative_angle?`<div style="font-size:11px;color:var(--blue);margin:6px 0 3px;font-weight:700">Ângulo criativo</div><div style="font-size:12px;color:var(--blue);margin-bottom:6px">${o.creative_angle}</div>`:''}
-          ${o.copy_image?`<div style="font-size:11px;color:var(--amber);margin:6px 0 3px;font-weight:700">📝 Copy da imagem</div><div style="background:var(--bg4);border:1px solid rgba(251,191,36,.2);border-radius:4px;padding:12px;text-align:center;font-size:16px;font-weight:800;margin-bottom:6px">${o.copy_image}</div>`:''}
-          ${o.visual_description?`<div style="font-size:11px;color:rgba(192,132,252,.9);margin:6px 0 3px;font-weight:700">🎨 Descrição visual</div><div style="font-size:12px;color:var(--text2);font-style:italic;border-left:2px solid rgba(192,132,252,.4);padding-left:10px;margin-bottom:6px">${o.visual_description}</div>`:''}
-          <div style="font-size:11px;color:var(--text3);margin:6px 0 3px;font-weight:700">💬 Caption</div>
-          <div class="eo-copy">${o.caption||o.copy||''}</div>
+          <div style="font-size:11px;color:var(--text3);margin:5px 0 3px;font-weight:700">Copy sugerido</div>
+          <div class="eo-copy">"${o.copy}"</div>
           <div class="eo-why">${o.why}</div>
         </div>`;
       });
@@ -1432,7 +1402,7 @@ function renderBrandsList(){
         <div class="bc-avatar" style="background:${bg};color:${tc}">${init}</div>
         <div style="flex:1">
           <div class="bc-name">${b.name}</div>
-          <div class="bc-sector">${b.sector}${b.auto_profiled?' · <span style="color:var(--green);font-size:10px">● Auto-perfilado</span>':''}</div>
+          <div class="bc-sector">${b.country_flag||'🇵🇹'} ${b.country_name||'Portugal'} · ${b.sector}${b.auto_profiled?' · <span style="color:var(--green);font-size:10px">● Auto-perfilado</span>':''}</div>
         </div>
         <button onclick="deleteBrand('${k}')" style="background:none;border:1px solid rgba(248,113,113,.3);color:var(--red);font-size:11px;padding:4px 10px;border-radius:var(--rsm);cursor:pointer;font-family:inherit">Apagar</button>
       </div>
@@ -1453,6 +1423,7 @@ function renderBrandsList(){
   renderBrandsList();
   renderSimPills();
   renderFeedFilters();
+  populateCountryDropdown();
   updateStats();
   updateBadges();
   if(state.allOpps.length>0){
