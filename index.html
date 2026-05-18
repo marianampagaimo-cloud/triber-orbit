@@ -407,7 +407,7 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
       <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">País de foco</label>
       <div id="country-selector" style="position:relative;display:inline-block;width:100%">
         <div id="country-selected" onclick="toggleCountryDropdown()" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:8px 12px;cursor:pointer;font-size:13px;color:var(--text);user-select:none;">
-          <span id="country-flag">🇵🇹</span>
+          <span id="country-flag" style="font-size:18px">🇵🇹</span>
           <span id="country-name">Portugal</span>
           <span style="margin-left:auto;color:var(--text3);font-size:11px">▾</span>
         </div>
@@ -982,7 +982,9 @@ function populateCountryDropdown(){
 
 function toggleCountryDropdown(){
   const d=document.getElementById('country-dropdown-list');
-  if(d)d.style.display=d.style.display==='none'?'block':'none';
+  if(!d)return;
+  if(d.children.length===0) populateCountryDropdown();
+  d.style.display=d.style.display==='none'?'block':'none';
 }
 
 function selectCountry(code,flag,name){
