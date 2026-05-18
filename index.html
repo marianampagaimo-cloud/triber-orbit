@@ -505,7 +505,6 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
 function saveBrands(){try{localStorage.setItem('orbit_brands_v3',JSON.stringify(BRANDS));}catch(e){}}
 function loadStoredBrands(){try{const s=localStorage.getItem('orbit_brands_v3');return s?JSON.parse(s):null;}catch(e){return null;}}
 
-localStorage.removeItem('orbit_brands_v3');
 const BRANDS = loadStoredBrands() || {
   adamus:{
     name:'Adamus Gin',color:'amber',country:'pt',country_flag:'🇵🇹',country_name:'Portugal',
