@@ -417,6 +417,15 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
       </div>
     </div>
     <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Brand on a Page — PDF, Word ou TXT (opcional mas recomendado)</label>
+      <div id="brand-file-drop" onclick="document.getElementById('brand-file-input').click()" style="border:1px dashed var(--border);border-radius:var(--rsm);padding:18px;text-align:center;cursor:pointer;background:var(--bg3);transition:border-color .2s">
+        <div style="font-size:20px;margin-bottom:6px">📄</div>
+        <div id="brand-file-label" style="font-size:13px;color:var(--text2)">Clica para carregar ou arrasta aqui</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">PDF, Word, TXT · A IA lê o documento e constrói o perfil automaticamente</div>
+      </div>
+      <input type="file" id="brand-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleBrandFile(this)">
+    </div>
+    <div style="margin-bottom:12px">
       <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:5px">Website ou Instagram (opcional)</label>
       <input type="text" id="new-brand-url" placeholder="Ex: instagram.com/superbock ou superbock.pt" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:inherit;font-size:13px;padding:8px 11px;outline:none">
     </div>
@@ -962,6 +971,22 @@ const COUNTRIES=[
   {code:'fr',flag:'🇫🇷',name:'França'},
   {code:'de',flag:'🇩🇪',name:'Alemanha'},
   {code:'us',flag:'🇺🇸',name:'EUA'},
+  {code:'it',flag:'🇮🇹',name:'Itália'},
+  {code:'nl',flag:'🇳🇱',name:'Países Baixos'},
+  {code:'be',flag:'🇧🇪',name:'Bélgica'},
+  {code:'ch',flag:'🇨🇭',name:'Suíça'},
+  {code:'at',flag:'🇦🇹',name:'Áustria'},
+  {code:'se',flag:'🇸🇪',name:'Suécia'},
+  {code:'no',flag:'🇳🇴',name:'Noruega'},
+  {code:'dk',flag:'🇩🇰',name:'Dinamarca'},
+  {code:'pl',flag:'🇵🇱',name:'Polónia'},
+  {code:'mx',flag:'🇲🇽',name:'México'},
+  {code:'ar',flag:'🇦🇷',name:'Argentina'},
+  {code:'co',flag:'🇨🇴',name:'Colômbia'},
+  {code:'ae',flag:'🇦🇪',name:'Emirados Árabes'},
+  {code:'jp',flag:'🇯🇵',name:'Japão'},
+  {code:'au',flag:'🇦🇺',name:'Austrália'},
+  {code:'ca',flag:'🇨🇦',name:'Canadá'},
   {code:'int',flag:'🌍',name:'Internacional'},
 ];
 
