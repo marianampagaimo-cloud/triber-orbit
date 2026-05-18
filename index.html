@@ -820,7 +820,7 @@ async function generateNews(){
     if(r1.news){allNews.push(...r1.news);log('  ↳ '+r1.news.length+' notícias geradas','ok');}
   }catch(e){log('  ↳ Erro batch 1: '+e.message.substring(0,80),'err');}
 
-  await sleep(4000);
+  await sleep(12000);
 
   try{
     log('  ↳ A identificar oportunidades RTM para as marcas…');
