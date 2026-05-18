@@ -824,7 +824,7 @@ async function generateNews(){
 
   try{
     log('  ↳ A identificar oportunidades RTM para as marcas…');
-    const r2=await claude('Gera 6 tendências/momentos culturais actuais ('+today+') com potencial RTM para estas marcas: '+brandCtx+'. Cada tendência deve ser relevante para pelo menos uma marca. Foca em momentos únicos, efemérides, movimentos culturais. JSON: {"news":[{"title":"<tendência>","summary":"<1 frase>","source":"<fonte>","category":"tendência","country":"<código>","tone":"positivo","urgency":"<alta|media|baixa>"}]}',700,false);
+    const r2=await claude('Gera 5 efemérides ou tendências culturais de hoje ('+today+') relevantes para marcas de bebidas premium, água saudável ou chocolates. APENAS JSON curto: {"news":[{"title":"<título>","summary":"<frase>","source":"Tendência","category":"tendência","country":"pt","tone":"positivo","urgency":"media"}]}',600,false);
     if(r2.news){allNews.push(...r2.news);log('  ↳ '+r2.news.length+' oportunidades RTM','ok');}
   }catch(e){log('  ↳ Erro batch 2: '+e.message.substring(0,80),'err');}
 
