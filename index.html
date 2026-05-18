@@ -952,7 +952,103 @@ function handleBrandFile(input){
   reader.readAsText(file);
 }
 
+function setBrandStatus(msg, color='var(--amber)'){
+  const s = document.getElementById('add-brand-status');
+  if(s){ s.style.display='block'; s.style.color=color; s.innerHTML=msg; }
+}
+
 async function addBrand(){
+  const name=document.getElementById('new-brand-name')?.value.trim();
+  if(!name){alert('Introduz o nome da marca.');return;}
+  if(!getKey()){alert('Configura a chave API primeiro.');return;}
+  const sector=document.getElementById('new-brand-sector')?.value.trim()||'';
+  const url=document.getElementById('new-brand-url')?.value.trim()||'';
+  const notes=document.getElementById('new-brand-notes')?.value.trim()||'';
+  const btn=document.getElementById('add-brand-btn');
+  btn.disabled=true; btn.textContent='A construir perfil…';
+
+  const docContext = brandFileContent ? brandFileContent.substring(0,8000) : '';
+  const brandBase = `Marca: "${name}" ${sector?'('+sector+')':''} ${url?'| '+url:''}${notes?'| Notas: '+notes:''}${docContext?'| DOCUMENTO BRAND ON A PAGE:\n'+docContext:''}`;
+
+  try{
+    // STEP 1 — Extract brand foundation
+    setBrandStatus('📄 Passo 1/5 — A ler e extrair informação do documento…');
+    await sleep(300);
+    const step1 = await claude(`Com base nesta informação de marca, extrai os dados fundamentais. APENAS JSON.
+${brandBase}
+{"name":"<nome oficial>","sector":"<setor>","mission":"<missão em 1 frase>","vision":"<visão em 1 frase>","values":"<valores separados por vírgulas>","positioning":"<posicionamento estratégico 1-2 frases>"}`, 600);
+
+    await sleep(2000);
+
+    // STEP 2 — Personality & tone deep analysis
+    setBrandStatus('🧠 Passo 2/5 — A analisar personalidade e tom de voz…');
+    const step2 = await claude(`Analisa em profundidade a personalidade e tom de voz desta marca. APENAS JSON.
+${brandBase}
+Missão: ${step1.mission||''} | Valores: ${step1.values||''}
+{"personality":"<5-7 adjetivos que descrevem a marca como pessoa>","tone":"<descrição detalhada do tom: como fala, registo, energia, o que nunca faz>","person_description":"<se a marca fosse uma pessoa, como seria? idade, estilo de vida, gostos>","aspirational_brands":"<marcas com que se compara ou aspira ser>","language_do":"<expressões, palavras, estruturas que usa>","language_dont":"<expressões e palavras que nunca usa>"}`, 700);
+
+    await sleep(2000);
+
+    // STEP 3 — Audience & authority mapping
+    setBrandStatus('🎯 Passo 3/5 — A mapear audiência e áreas de autoridade…');
+    const step3 = await claude(`Define a audiência e autoridade RTM desta marca. APENAS JSON.
+${brandBase}
+Posicionamento: ${step1.positioning||''}
+{"target":"<target primário: demográfico e psicográfico detalhado>","target_secondary":"<target secundário>","topics_yes":"<temas onde a marca tem autoridade e credibilidade para falar>","topics_no":"<temas que a marca NUNCA deve abordar — lista explícita>","authority":"<em que áreas específicas tem credibilidade para fazer RTM>","rtm_sweet_spots":"<tipos de eventos/momentos culturais onde esta marca brilha em RTM>"}`, 700);
+
+    await sleep(2000);
+
+    // STEP 4 — Communication style & real examples
+    setBrandStatus('✍️ Passo 4/5 — A gerar exemplos de posts no tom real da marca…');
+    const step4 = await claude(`Gera o estilo de comunicação e exemplos de posts reais para esta marca. APENAS JSON.
+Marca: ${step1.name||name} | Tom: ${step2.tone||''} | Target: ${step3.target||''} | Nunca: ${step3.topics_no||''}
+${docContext?'Documento original:\n'+docContext.substring(0,2000):''}
+{"communication_style":"<descrição muito detalhada: comprimento típico dos posts, uso de emojis (quais e frequência), estrutura, registo formal/informal, uso de perguntas, hashtags, call-to-action>","post_examples":"<5 exemplos de posts simulados no tom EXACTO desta marca — variados em tema e formato, separados por \\n>","tags":["<tag1>","<tag2>","<tag3>","<tag4>","<tag5>"],"color":"<amber|green|red|blue|purple>"}`, 900);
+
+    await sleep(2000);
+
+    // STEP 5 — Validate & consolidate
+    setBrandStatus('✅ Passo 5/5 — A validar e consolidar perfil…');
+    const finalProfile = {
+      name: step1.name||name,
+      sector: step1.sector||sector,
+      positioning: step1.positioning||'',
+      personality: step2.personality||'',
+      tone: step2.tone||'',
+      values: step1.values||'',
+      target: step3.target||'',
+      topics_yes: step3.topics_yes||'',
+      topics_no: step3.topics_no||'',
+      authority: step3.authority||'',
+      rtm_sweet_spots: step3.rtm_sweet_spots||'',
+      communication_style: step4.communication_style||'',
+      post_examples: step4.post_examples||'',
+      aspirational_brands: step2.aspirational_brands||'',
+      language_do: step2.language_do||'',
+      language_dont: step2.language_dont||'',
+      tags: step4.tags||[],
+      color: step4.color||'amber',
+      auto_profiled: true,
+      profiled_at: new Date().toISOString()
+    };
+
+    const key='brand_'+name.toLowerCase().replace(/[^a-z0-9]/g,'').substring(0,15)+'_'+Date.now().toString().slice(-4);
+    BRANDS[key]={...finalProfile,key};
+    saveBrands();
+    brandFileContent='';
+    ['new-brand-name','new-brand-sector','new-brand-url','new-brand-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('brand-file-label').textContent='📄 Clica para carregar PDF ou Word';
+    document.getElementById('brand-file-drop').style.borderColor='var(--border)';
+    setBrandStatus('✓ Perfil de "'+finalProfile.name+'" criado com sucesso!','var(--green)');
+    setTimeout(()=>{const s=document.getElementById('add-brand-status');if(s)s.style.display='none';},4000);
+    btn.disabled=false; btn.textContent='Construir perfil com IA →';
+    renderBrandsList(); renderSimPills(); updateBadges();
+
+  }catch(e){
+    setBrandStatus('⚠ Erro: '+e.message,'var(--red)');
+    btn.disabled=false; btn.textContent='Construir perfil com IA →';
+  }
+}
   const name=document.getElementById('new-brand-name')?.value.trim();
   if(!name){alert('Introduz o nome da marca.');return;}
   if(!getKey()){alert('Configura a chave API primeiro.');return;}
