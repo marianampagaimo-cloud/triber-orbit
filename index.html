@@ -1177,8 +1177,11 @@ function renderEmailList(){
           <div class="eo-event">${o.event}</div>
           <div class="eo-score">Score: ${o.score}/100 · ~${o.window_h}h · ${o.format} · ${o.platform} · ${o.source}</div>
           <div class="eo-concept">${o.concept}</div>
-          <div style="font-size:11px;color:var(--text3);margin:5px 0 3px;font-weight:700">Copy sugerido</div>
-          <div class="eo-copy">"${o.copy}"</div>
+          ${o.creative_angle?`<div style="font-size:11px;color:var(--blue);margin:6px 0 3px;font-weight:700">Ângulo criativo</div><div style="font-size:12px;color:var(--blue);margin-bottom:6px">${o.creative_angle}</div>`:''}
+          ${o.copy_image?`<div style="font-size:11px;color:var(--amber);margin:6px 0 3px;font-weight:700">📝 Copy da imagem</div><div style="background:var(--bg4);border:1px solid rgba(251,191,36,.2);border-radius:4px;padding:12px;text-align:center;font-size:16px;font-weight:800;margin-bottom:6px">${o.copy_image}</div>`:''}
+          ${o.visual_description?`<div style="font-size:11px;color:rgba(192,132,252,.9);margin:6px 0 3px;font-weight:700">🎨 Descrição visual</div><div style="font-size:12px;color:var(--text2);font-style:italic;border-left:2px solid rgba(192,132,252,.4);padding-left:10px;margin-bottom:6px">${o.visual_description}</div>`:''}
+          <div style="font-size:11px;color:var(--text3);margin:6px 0 3px;font-weight:700">💬 Caption</div>
+          <div class="eo-copy">${o.caption||o.copy||''}</div>
           <div class="eo-why">${o.why}</div>
         </div>`;
       });
