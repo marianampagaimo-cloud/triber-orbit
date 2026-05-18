@@ -505,6 +505,7 @@ svg.ring-svg{position:absolute;inset:0;transform:rotate(-90deg);}
 function saveBrands(){try{localStorage.setItem('orbit_brands_v3',JSON.stringify(BRANDS));}catch(e){}}
 function loadStoredBrands(){try{const s=localStorage.getItem('orbit_brands_v3');return s?JSON.parse(s):null;}catch(e){return null;}}
 
+localStorage.removeItem('orbit_brands_v3');
 const BRANDS = loadStoredBrands() || {
   adamus:{
     name:'Adamus Gin',color:'amber',country:'pt',country_flag:'🇵🇹',country_name:'Portugal',
@@ -971,7 +972,16 @@ const COUNTRIES=[
 function populateCountryDropdown(){
   const d=document.getElementById('country-dropdown-list');
   if(!d)return;
-  d.innerHTML=COUNTRIES.map(c=>'<div onclick="selectCountry(''+c.code+'',''+c.flag+'',''+c.name+'')" style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--text2)" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">'+c.flag+'&nbsp;'+c.name+'</div>').join('');
+  let html='';
+  COUNTRIES.forEach(function(c){
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--text2)';
+    div.innerHTML=c.flag+' '+c.name;
+    div.addEventListener('mouseover',function(){this.style.background='var(--bg3)';});
+    div.addEventListener('mouseout',function(){this.style.background='';});
+    div.addEventListener('click',function(){selectCountry(c.code,c.flag,c.name);});
+    d.appendChild(div);
+  });
 }
 
 function toggleCountryDropdown(){
